@@ -38,7 +38,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(TedProvider.class);
         providers.forEach((x,y) -> System.out.println(x));
 
-        providers.values().forEach(x -> getInterface(x));
+        // 拿到全限定名 并且进行放置
+        providers.values().forEach(this::getInterface);
     }
 
     private void getInterface(Object x) {
@@ -50,6 +51,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     public RpcResponse invoke(RpcRequest request) {
         Object bean = skeleton.get(request.getService());
+
+        RpcResponse rpcResponse = new RpcResponse();
         try {
             // 通过方法名拿到方法
             Method method = findMethod(bean.getClass(), request.getMethod());
@@ -58,12 +61,17 @@ public class ProviderBootstrap implements ApplicationContextAware {
             }
             // 执行方法
             Object result = method.invoke(bean, request.getArgs());
-            return new RpcResponse(200, result,"调用成功");
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            rpcResponse.setCode(200);
+            rpcResponse.setMessage("调用成功");
+            rpcResponse.setData(result);
+        } catch (InvocationTargetException ex) {
+            rpcResponse.setMessage("调用失败");
+            rpcResponse.setEx(new RuntimeException(ex.getTargetException().getMessage()));
+        } catch (IllegalAccessException ex) {
+            rpcResponse.setMessage("调用失败");
+            rpcResponse.setEx(new RuntimeException(ex.getMessage()));
         }
+        return rpcResponse;
     }
 
     private Method findMethod(Class<?> aClass, String methodName) {

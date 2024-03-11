@@ -19,4 +19,6 @@ public class RpcResponse<T> {
     T data;
 
     private String message;
+
+    private Exception ex;
 }

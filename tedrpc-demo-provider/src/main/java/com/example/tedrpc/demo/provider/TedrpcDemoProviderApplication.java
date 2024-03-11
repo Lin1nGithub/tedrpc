@@ -49,6 +49,12 @@ public class TedrpcDemoProviderApplication {
 
             RpcResponse rpcResponse = invoke(request);
             System.out.println("return :" + rpcResponse.getData());
+
+            request.setService("cn.theodore.tedrpc.demo.api.OrderService");
+            request.setMethod("findById");
+            request.setArgs(new Object[]{100});
+            rpcResponse = invoke(request);
+            System.out.println("return :" + rpcResponse.getData());
         };
     }
 }
