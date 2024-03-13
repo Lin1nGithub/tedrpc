@@ -2,12 +2,14 @@ package cn.theodore.tedrpc.core.api;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author linkuan
  */
 @Getter
 @Setter
+@ToString
 public class RpcRequest {
 
     /**
@@ -18,7 +20,7 @@ public class RpcRequest {
     /**
      * 方法 findById
      */
-    private String method;
+    private String methodSign;
 
     /**
      * 参数 100
