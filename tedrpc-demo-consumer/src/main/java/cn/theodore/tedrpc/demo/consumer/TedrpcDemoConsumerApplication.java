@@ -27,6 +27,9 @@ public class TedrpcDemoConsumerApplication {
     @Resource
     private ConsumerBootStrap consumerBootStrap;
 
+    @Resource
+    private Demo demo;
+
     public static void main(String[] args) {
         SpringApplication.run(TedrpcDemoConsumerApplication.class, args);
     }
@@ -38,11 +41,30 @@ public class TedrpcDemoConsumerApplication {
     @Bean
     public ApplicationRunner runner() {
         return x -> {
-            User user = userService.findById(1);
-            System.out.println("RPC result userService.findById= " + user);
 
-            Order order = orderService.findById(404);
-            System.out.println("RPC result orderService.findById= " + order);
+            User user = userService.findById(1);
+            System.out.println("RPC result userService.findById(1) " + user);
+
+            User user1 = userService.findById(1,"hubao");
+            System.out.println("RPC result userService.findById findById(1,\"hubao\")" + user1);
+
+            System.out.println(userService.getName());
+
+            System.out.println(userService.getName(123));
+
+            // 可以调用远程 到toString方法 类似的还有 hashCode
+//            String string = userService.toString();
+//            int i = userService.hashCode();
+
+//            Order order = orderService.findById(2);
+//            System.out.println("RPC result orderService.findById= " + order);
+//
+//
+
+//            int id = userService.getId(1);
+
+
+            // demo.test1();;
         };
     }
 

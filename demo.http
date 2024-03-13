@@ -4,8 +4,16 @@ Content-Type: application/json
 
 {
   "service":"cn.theodore.tedrpc.demo.api.UserService",
-  "method":"findById",
+  "methodSign":"findById@1_int",
   "args":[100]
 }
 
 ###
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
+  "service":"cn.theodore.tedrpc.demo.api.UserService",
+  "methodSign":"findById@2_int_java.lang.String",
+  "args":[100,"cc"]
+}

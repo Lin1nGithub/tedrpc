@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
+import cn.theodore.tedrpc.core.util.MethodUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
@@ -27,18 +28,46 @@ public class TedInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethod(method.getName());
+        rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
         RpcResponse rpcResponse = post(rpcRequest);
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
-            JSONObject jsonResult = (JSONObject) rpcResponse.getData();
-            return jsonResult.toJavaObject(method.getReturnType());
+            Object data = rpcResponse.getData();
+            if (data instanceof JSONObject) {
+                JSONObject jsonResult = (JSONObject) rpcResponse.getData();
+                return jsonResult.toJavaObject(method.getReturnType());
+            }else {
+                return convertObject(data, method.getReturnType());
+            }
         }else {
             Exception ex = rpcResponse.getEx();
             // ex.printStackTrace();
             throw new RuntimeException(ex);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T convertObject(Object obj, Class<?> clz) {
+        if (obj == null) {
+            return null;
+        }
+
+        // 对基本类型的包装类进行判断和转换
+        if (obj instanceof Integer || obj instanceof Double || obj instanceof Float ||
+                obj instanceof Long || obj instanceof Short || obj instanceof Byte ||
+                obj instanceof Boolean || obj instanceof Character) {
+            return (T) obj; // 直接返回，利用自动装箱
+        }
+
+        // 如果有其他类型需要转换处理，可以在这里继续添加逻辑
+        // 例如，如果你需要特殊处理String类型
+        if (obj instanceof String) {
+            return (T) obj; // 假设直接返回String对象
+        }
+
+        // 如果不符合以上任何条件，可以返回null或抛出异常
+        return null;
     }
 
     OkHttpClient client = new OkHttpClient.Builder()
