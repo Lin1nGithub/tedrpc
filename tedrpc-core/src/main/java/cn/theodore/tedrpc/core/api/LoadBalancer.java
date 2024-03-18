@@ -3,11 +3,17 @@ package cn.theodore.tedrpc.core.api;
 import java.util.List;
 
 /**
+ * 轮训调用 weightRR-权重算法,AAWR-自适应
+ * 8081 w=100 25次
+ * 8082 w=300 75次
+ *
+ *  todo 学习自适应负载均衡算法
+ *       权重算法
  * @author linkuan
  */
-public interface LoadBalancer {
+public interface LoadBalancer<T> {
 
-    String choose(List<String> providers);
+    T choose(List<T> providers);
 
 
     /**

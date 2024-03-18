@@ -2,7 +2,9 @@ package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.LoadBalancer;
+import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.api.Router;
+import cn.theodore.tedrpc.core.api.RpcContext;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,11 +41,15 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         Router router = applicationContext.getBean(Router.class);
         LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
 
-        String urls = environment.getProperty("tedrpc.providers");
-        if (Strings.isBlank(urls)) {
-            System.out.println("tedrpc.providers is empty.");
-        }
-        String[] providers = urls.split(",");
+        // 获取注册中心
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+
+        // 初始化rpc上下文
+        RpcContext context = new RpcContext();
+            // 设置路由
+        context.setRouter(router);
+            // 设置均衡负载
+        context.setLoadBalancer(loadBalancer);
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
@@ -66,7 +72,8 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
                     Object consumer = stub.get(serviceName);
                     if (consumer == null) {
                         // 设置代理类
-                        consumer = createConsumer(service, router, loadBalancer, providers);
+                        consumer = createFromRegistry(service, context, rc);
+//                        consumer = createConsumer(service, context, List.of(providers));
                     }
                     field.setAccessible(true);
                     field.set(bean, consumer);
@@ -77,10 +84,30 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         }
     }
 
-    private Object createConsumer(Class<?> service, Router router, LoadBalancer loadBalancer, String[] providers) {
+    /**
+     * 通过 Registry创建consumer
+     * @param service
+     * @param context
+     * @param rc
+     * @return
+     */
+    private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
+        String canonicalName = service.getCanonicalName();
+        List<String> providers = rc.fetchAll(canonicalName);
+        return createConsumer(service, context, providers);
+    }
+
+    /**
+     * 创建 consumer(设置代理类)
+     * @param service
+     * @param context
+     * @param providers
+     * @return
+     */
+    private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class[]{service},
-                new TedInvocationHandler(service, router,  loadBalancer, providers));
+                new TedInvocationHandler(service, context, providers));
     }
 
 

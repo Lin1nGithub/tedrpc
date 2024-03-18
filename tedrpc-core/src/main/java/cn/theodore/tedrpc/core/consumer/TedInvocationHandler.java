@@ -1,9 +1,6 @@
 package cn.theodore.tedrpc.core.consumer;
 
-import cn.theodore.tedrpc.core.api.LoadBalancer;
-import cn.theodore.tedrpc.core.api.Router;
-import cn.theodore.tedrpc.core.api.RpcRequest;
-import cn.theodore.tedrpc.core.api.RpcResponse;
+import cn.theodore.tedrpc.core.api.*;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import cn.theodore.tedrpc.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
@@ -27,16 +24,13 @@ public class TedInvocationHandler implements InvocationHandler {
 
     private Class<?> service;
 
-    private Router router;
+    private RpcContext context;
 
-    private LoadBalancer loadBalancer;
+    private List<String> providers;
 
-    private String[] providers;
-
-    public TedInvocationHandler(Class<?> clz, Router router, LoadBalancer loadBalancer, String[] providers) {
+    public TedInvocationHandler(Class<?> clz, RpcContext context, List<String> providers) {
         this.service = clz;
-        this.router = router;
-        this.loadBalancer = loadBalancer;
+        this.context = context;
         this.providers = providers;
     }
     @Override
@@ -51,8 +45,8 @@ public class TedInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        List<String> urls = router.route(List.of(this.providers));
-        String url = loadBalancer.choose(urls);
+        List<String> urls = context.getRouter().route(providers);
+        String url = (String) context.getLoadBalancer().choose(urls);
         System.out.println("loadBalancer.choose(url) ==> " + url);
         RpcResponse rpcResponse = post(rpcRequest, url);
 

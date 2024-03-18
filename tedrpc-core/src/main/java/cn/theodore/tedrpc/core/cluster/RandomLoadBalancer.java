@@ -9,12 +9,12 @@ import java.util.Random;
  * 随机调用
  * @author linkuan
  */
-public class RandomLoadBalancer implements LoadBalancer {
+public class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
     private Random random = new Random();
 
     @Override
-    public String choose(List<String> providers) {
+    public T choose(List<T> providers) {
         if ((providers == null || providers.isEmpty())) {
             return null;
         }
