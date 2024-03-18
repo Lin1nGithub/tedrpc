@@ -1,5 +1,7 @@
 package cn.theodore.tedrpc.core.consumer;
 
+import cn.theodore.tedrpc.core.api.LoadBalancer;
+import cn.theodore.tedrpc.core.api.Router;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.util.MethodUtils;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,8 +27,17 @@ public class TedInvocationHandler implements InvocationHandler {
 
     private Class<?> service;
 
-    public TedInvocationHandler(Class<?> clz) {
+    private Router router;
+
+    private LoadBalancer loadBalancer;
+
+    private String[] providers;
+
+    public TedInvocationHandler(Class<?> clz, Router router, LoadBalancer loadBalancer, String[] providers) {
         this.service = clz;
+        this.router = router;
+        this.loadBalancer = loadBalancer;
+        this.providers = providers;
     }
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -39,7 +51,11 @@ public class TedInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        RpcResponse rpcResponse = post(rpcRequest);
+        List<String> urls = router.route(List.of(this.providers));
+        String url = loadBalancer.choose(urls);
+        System.out.println("loadBalancer.choose(url) ==> " + url);
+        RpcResponse rpcResponse = post(rpcRequest, url);
+
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
             Object data = rpcResponse.getData();
             if (data instanceof JSONObject) {
@@ -93,10 +109,10 @@ public class TedInvocationHandler implements InvocationHandler {
             .connectTimeout(1, TimeUnit.SECONDS)
             .build();
 
-    private RpcResponse post(RpcRequest rpcRequest) {
+    private RpcResponse post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
         Request request = new Request.Builder()
-                .url("http://localhost:8080/")
+                .url(url)
                 .post(RequestBody.create(reqJson, JSONTYPE))
                 .build();
         try {

@@ -1,11 +1,16 @@
 package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
+import cn.theodore.tedrpc.core.api.LoadBalancer;
+import cn.theodore.tedrpc.core.api.Router;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -19,16 +24,27 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ConsumerBootStrap implements ApplicationContextAware {
+public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAware {
 
     @Resource
     private ApplicationContext applicationContext;
+    Environment environment;
 
     private Map<String, Object> stub = new HashMap<>();
 
     // 设置接口的代理类
     // 此时已初始化完成
     public void start() {
+
+        Router router = applicationContext.getBean(Router.class);
+        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+
+        String urls = environment.getProperty("tedrpc.providers");
+        if (Strings.isBlank(urls)) {
+            System.out.println("tedrpc.providers is empty.");
+        }
+        String[] providers = urls.split(",");
+
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
             Object bean = applicationContext.getBean(beanDefinitionName);
@@ -50,21 +66,21 @@ public class ConsumerBootStrap implements ApplicationContextAware {
                     Object consumer = stub.get(serviceName);
                     if (consumer == null) {
                         // 设置代理类
-                        consumer = createConsumer(service);
+                        consumer = createConsumer(service, router, loadBalancer, providers);
                     }
                     field.setAccessible(true);
                     field.set(bean, consumer);
-                }catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             });
         }
     }
 
-    private Object createConsumer(Class<?> service) {
+    private Object createConsumer(Class<?> service, Router router, LoadBalancer loadBalancer, String[] providers) {
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class[]{service},
-                new TedInvocationHandler(service));
+                new TedInvocationHandler(service, router,  loadBalancer, providers));
     }
 
 
@@ -85,5 +101,4 @@ public class ConsumerBootStrap implements ApplicationContextAware {
 
         return result;
     }
-
 }

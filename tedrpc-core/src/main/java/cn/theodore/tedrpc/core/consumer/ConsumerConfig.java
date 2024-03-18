@@ -1,5 +1,9 @@
 package cn.theodore.tedrpc.core.consumer;
 
+import cn.theodore.tedrpc.core.api.LoadBalancer;
+import cn.theodore.tedrpc.core.api.Router;
+import cn.theodore.tedrpc.core.cluster.RandomLoadBalancer;
+import cn.theodore.tedrpc.core.cluster.RoundRibonLoadBalancer;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +30,16 @@ public class ConsumerConfig {
            System.out.println("consumerBootStrap start");
            consumerBootStrap.start();
        };
+    }
+
+    @Bean
+    public LoadBalancer loadBalancer() {
+//        return LoadBalancer.Default;
+        return new RoundRibonLoadBalancer();
+    }
+
+    @Bean
+    public Router router() {
+        return Router.Default;
     }
 }

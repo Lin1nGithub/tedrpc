@@ -1,6 +1,8 @@
 package cn.theodore.tedrpc.demo.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
+import cn.theodore.tedrpc.core.api.RpcRequest;
+import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.consumer.ConsumerBootStrap;
 import cn.theodore.tedrpc.core.consumer.ConsumerConfig;
 import cn.theodore.tedrpc.demo.api.Order;
@@ -13,24 +15,35 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 
 @SpringBootApplication
 @Import({ConsumerConfig.class})
+@RestController
 public class TedrpcDemoConsumerApplication {
 
     @TedConsumer
     private UserService userService;
 
-    @TedConsumer
-    private OrderService orderService;
+//    @TedConsumer
+//    private OrderService orderService;
 
     @Resource
     private ConsumerBootStrap consumerBootStrap;
 
-    @Resource
-    private Demo demo;
+//    @Resource
+//    private Demo demo;
+
+    @RequestMapping(value = "/",method = RequestMethod.GET)
+    public User findById(int id) {
+        return userService.findById(id);
+    }
+
 
     public static void main(String[] args) {
         SpringApplication.run(TedrpcDemoConsumerApplication.class, args);

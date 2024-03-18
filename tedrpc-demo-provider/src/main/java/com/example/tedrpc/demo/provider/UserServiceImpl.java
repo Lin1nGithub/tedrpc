@@ -3,6 +3,8 @@ package com.example.tedrpc.demo.provider;
 import cn.theodore.tedrpc.core.annotation.TedProvider;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
+import jakarta.annotation.Resource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,9 +14,13 @@ import org.springframework.stereotype.Component;
 @TedProvider
 public class UserServiceImpl implements UserService {
 
+    @Resource
+    private Environment environment;
+
+
     @Override
     public User findById(int id) {
-        return new User(id, "ted-" + System.currentTimeMillis());
+        return new User(id, "ted-" + environment.getProperty("server.port") + "_" + System.currentTimeMillis());
     }
 
     @Override
@@ -44,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int[] getIds() {
-        return new int[]{1,2,3};
+        return new int[]{1, 2, 3};
     }
 
     @Override
