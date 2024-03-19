@@ -1,9 +1,12 @@
 package cn.theodore.tedrpc.core.registry;
 
+import cn.theodore.tedrpc.core.api.ChangeListener;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
+import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
@@ -85,6 +88,30 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public List<String> fetchAll(String service) {
-        return null;
+        String servicePath = "/" + service;
+        try {
+            List<String> nodes = client.getChildren().forPath(servicePath);
+            System.out.println(" ===> fetchAll from zk: " + servicePath);
+            nodes.forEach(System.out::println);
+            return nodes;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public void subscribe(String service, ChangeListener listener) {
+        final TreeCache cache = TreeCache.newBuilder(client, "/" + service)
+                .setCacheData(true)
+                .setMaxDepth(2)
+                .build();
+        cache.getListenable().addListener((curator, event) -> {
+            // 有任何节点变动 这里会执行
+            System.out.println("zk subscribe event: "+ event);
+            List<String> nodes = fetchAll(service);
+            listener.fire(new Event(nodes));
+        });
+        cache.start();
     }
 }

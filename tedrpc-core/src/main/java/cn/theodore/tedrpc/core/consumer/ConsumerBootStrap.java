@@ -1,10 +1,8 @@
 package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
-import cn.theodore.tedrpc.core.api.LoadBalancer;
-import cn.theodore.tedrpc.core.api.RegistryCenter;
-import cn.theodore.tedrpc.core.api.Router;
-import cn.theodore.tedrpc.core.api.RpcContext;
+import cn.theodore.tedrpc.core.api.*;
+import cn.theodore.tedrpc.core.registry.Event;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author linkuan
@@ -46,9 +45,9 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
         // 初始化rpc上下文
         RpcContext context = new RpcContext();
-            // 设置路由
+        // 设置路由
         context.setRouter(router);
-            // 设置均衡负载
+        // 设置均衡负载
         context.setLoadBalancer(loadBalancer);
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
@@ -86,6 +85,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
     /**
      * 通过 Registry创建consumer
+     *
      * @param service
      * @param context
      * @param rc
@@ -93,12 +93,24 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
      */
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         String canonicalName = service.getCanonicalName();
-        List<String> providers = rc.fetchAll(canonicalName);
+        List<String> providers = mapUrl(rc.fetchAll(canonicalName));
+        System.out.println(" ===> map to providers: ");
+
+        rc.subscribe(canonicalName, event -> {
+            providers.clear();
+            providers.addAll(mapUrl(event.getData()));
+        });
+
         return createConsumer(service, context, providers);
+    }
+
+    private List<String> mapUrl(List<String> nodes) {
+        return nodes.stream().map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
     }
 
     /**
      * 创建 consumer(设置代理类)
+     *
      * @param service
      * @param context
      * @param providers

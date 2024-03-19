@@ -38,8 +38,9 @@ public interface RegistryCenter {
 
     /**
      * 监听到服务的变化 然后需要做的操作
+     * provider挂掉的时候 需要通知到consumer注销节点
      */
-    // void subscribe();
+    void subscribe(String service, ChangeListener changeListener);
 
     /**
      * 静态注册中心
@@ -76,5 +77,11 @@ public interface RegistryCenter {
         public List<String> fetchAll(String service) {
             return providers;
         }
+
+        @Override
+        public void subscribe(String service, ChangeListener changeListener) {
+
+        }
+
     }
 }
