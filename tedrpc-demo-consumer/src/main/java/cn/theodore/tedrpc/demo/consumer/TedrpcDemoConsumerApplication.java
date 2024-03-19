@@ -1,12 +1,8 @@
 package cn.theodore.tedrpc.demo.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
-import cn.theodore.tedrpc.core.api.RpcRequest;
-import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.consumer.ConsumerBootStrap;
 import cn.theodore.tedrpc.core.consumer.ConsumerConfig;
-import cn.theodore.tedrpc.demo.api.Order;
-import cn.theodore.tedrpc.demo.api.OrderService;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
@@ -15,12 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
 
 @SpringBootApplication
 @Import({ConsumerConfig.class})

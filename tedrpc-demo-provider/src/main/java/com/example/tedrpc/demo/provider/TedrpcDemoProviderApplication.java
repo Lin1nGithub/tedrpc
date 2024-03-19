@@ -3,6 +3,7 @@ package com.example.tedrpc.demo.provider;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.provider.ProviderBootstrap;
+import cn.theodore.tedrpc.core.provider.ProviderConfig;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-@Import({ProviderBootstrap.class})
+@Import({ProviderConfig.class})
 public class TedrpcDemoProviderApplication {
 
     public static void main(String[] args) {

@@ -41,6 +41,9 @@ public interface RegistryCenter {
      */
     // void subscribe();
 
+    /**
+     * 静态注册中心
+     */
     class StaticRegistryCenter implements RegistryCenter {
 
         List<String> providers;

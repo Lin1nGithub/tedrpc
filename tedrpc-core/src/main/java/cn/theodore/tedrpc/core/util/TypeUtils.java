@@ -36,7 +36,15 @@ public class TypeUtils {
             Class<?> componentType = type.getComponentType();
             Object resultArray = Array.newInstance(componentType, length);
             for (int i = 0; i < length; i++) {
-                Array.set(resultArray, i, Array.get(origin, i));
+                if (componentType.isPrimitive() ||
+                        componentType.getPackageName().startsWith("java")) {
+                    Array.set(resultArray, i, Array.get(origin, i));
+                }
+                // 基本类型或者是jdk自带的类型 其实就是我们自定义的类型
+                else {
+                    Object caseObject = castType(Array.get(origin, i), componentType);
+                    Array.set(resultArray, i, caseObject);
+                }
             }
 
             return resultArray;
