@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.provider.ProviderBootstrap;
 import cn.theodore.tedrpc.core.provider.ProviderConfig;
+import cn.theodore.tedrpc.core.provider.ProviderInvoker;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,12 +25,12 @@ public class TedrpcDemoProviderApplication {
     }
 
     @Resource
-    private ProviderBootstrap providerBootstrap;
+    private ProviderInvoker providerInvoker;
 
     @RequestMapping("/")
     // 使用HTTP + JSON 实现序列化和通讯
     public RpcResponse invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+        return providerInvoker.invoke(request);
     }
 
     @Bean

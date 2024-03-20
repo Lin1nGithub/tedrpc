@@ -19,6 +19,11 @@ public class ProviderConfig {
         return new ProviderBootstrap();
     }
 
+    @Bean
+    ProviderInvoker providerInvoker(@Autowired ProviderBootstrap providerBootstrap) {
+        return new ProviderInvoker(providerBootstrap);
+    }
+
 
     @Bean
     @Order(Integer.MIN_VALUE)
