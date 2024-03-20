@@ -80,6 +80,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             // 删除实例节点
             String instancePath = servicePath + "/" + instance;
             System.out.println("====> unregister to zk:" + instancePath);
+            // 报异常 默默处理
             client.delete().quietly().forPath(instancePath);
         } catch (Exception e) {
             throw new RuntimeException(e);

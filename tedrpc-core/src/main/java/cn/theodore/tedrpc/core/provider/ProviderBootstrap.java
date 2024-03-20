@@ -43,6 +43,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private String instance;
 
+    private RegistryCenter rc = null;
+
     // bean的属性初始化装配前
     // init-method
     @PostConstruct
@@ -55,6 +57,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
         // 拿到全限定名 并且进行放置
         providers.values().forEach(this::getInterface);
 
+        rc = applicationContext.getBean(RegistryCenter.class);
+
 //        String ip = InetAddress.getLocalHost().getHostAddress();
 //        this.instance = ip + "_" + port;
         // 每个服务进行注册
@@ -66,11 +70,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = ip + "_" + port;
+        rc.start();
         skeleton.keySet().forEach(this::registerService); // zk就有了 spring还未完成
     }
 
     private void registerService(String service) {
-        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
         rc.register(service, instance);
     }
 
@@ -79,7 +83,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
      */
     @PreDestroy
     public void stop() {
+        System.out.println(" ====> unreg all services.");
         skeleton.keySet().forEach(this::unRegisterService);
+        rc.stop();
     }
 
     private void unRegisterService(String service) {
