@@ -21,6 +21,8 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client = null;
 
+    private TreeCache cache = null;
+
     @Override
     public void start() {
         // 重拾策略
@@ -37,6 +39,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     public void stop() {
         System.out.println("====> zk client stopped.");
+        cache.close();
         client.close();
     }
 
@@ -103,7 +106,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     @SneakyThrows
     public void subscribe(String service, ChangeListener listener) {
-        final TreeCache cache = TreeCache.newBuilder(client, "/" + service)
+        cache = TreeCache.newBuilder(client, "/" + service)
                 .setCacheData(true)
                 .setMaxDepth(2)
                 .build();

@@ -2,12 +2,11 @@ package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.*;
-import cn.theodore.tedrpc.core.registry.Event;
+import cn.theodore.tedrpc.core.consumer.http.TedInvocationHandler;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -15,13 +14,13 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * 消费端实现类.
  * @author linkuan
  */
 @Getter
