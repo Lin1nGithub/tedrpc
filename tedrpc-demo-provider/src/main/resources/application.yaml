@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+tedrpc:
+  zkServer: localhost:2181
+  zkRoot: tedrpc
+
 app:
   id: app1
   namespace: public
