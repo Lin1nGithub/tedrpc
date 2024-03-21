@@ -8,11 +8,8 @@ import java.lang.reflect.Method;
  * 描述provider映射关系
  * @author linkuan
  */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
+@Builder
 public class ProviderMeta {
 
     private Method method;

@@ -112,26 +112,27 @@ public class ProviderBootstrap implements ApplicationContextAware {
         rc.unregister(serviceMeta, instance);
     }
 
-    private void getInterface(Object x) {
+    private void getInterface(Object impl) {
         // 暂时拿第一个
-        Class<?> xInterface = x.getClass().getInterfaces()[0];
+        Class<?> xInterface = impl.getClass().getInterfaces()[0];
         Method[] methods = xInterface.getMethods();
         for (Method method : methods) {
             if (MethodUtils.checkLocalMethod(method)) {
                 continue;
             }
-            createProvider(xInterface, x, method);
+            createProvider(xInterface, impl, method);
         }
         // key: 接口全限定名 value: 接口实现类
 //        skeleton.put(xInterface.getCanonicalName(), x);
     }
 
-    private void createProvider(Class<?> xInterface, Object x, Method method) {
-        ProviderMeta meta = new ProviderMeta();
-        meta.setServiceImpl(x);
-        meta.setMethod(method);
-        meta.setMethodSign(MethodUtils.methodSign(method));
+    private void createProvider(Class<?> service, Object impl, Method method) {
+        ProviderMeta meta = ProviderMeta.builder()
+                .method(method)
+                .methodSign(MethodUtils.methodSign(method))
+                .ServiceImpl(impl)
+                .build();
         System.out.println("create a provider: " + meta);
-        skeleton.add(xInterface.getCanonicalName(), meta);
+        skeleton.add(service.getCanonicalName(), meta);
     }
 }
