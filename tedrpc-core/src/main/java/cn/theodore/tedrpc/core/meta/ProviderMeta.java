@@ -5,6 +5,7 @@ import lombok.*;
 import java.lang.reflect.Method;
 
 /**
+ * 描述provider映射关系
  * @author linkuan
  */
 @Getter

@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.annotation.TedProvider;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
+import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 /**
  * 服务提供者的启动类
+ *
  * @author linkuan
  */
 @Getter
@@ -39,6 +41,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private InstanceMeta instance;
 
     private RegistryCenter rc = null;
+
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
 
     // bean的属性初始化装配前
     // init-method
@@ -70,7 +82,13 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private void registerService(String service) {
-        rc.register(service, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(service)
+                .app(app)
+                .namespace(namespace)
+                .env(env)
+                .build();
+        rc.register(serviceMeta, instance);
     }
 
     /**
@@ -85,7 +103,13 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void unRegisterService(String service) {
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        rc.unregister(service, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(service)
+                .app(app)
+                .namespace(namespace)
+                .env(env)
+                .build();
+        rc.unregister(serviceMeta, instance);
     }
 
     private void getInterface(Object x) {
@@ -110,37 +134,4 @@ public class ProviderBootstrap implements ApplicationContextAware {
         System.out.println("create a provider: " + meta);
         skeleton.add(xInterface.getCanonicalName(), meta);
     }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T convertObject(Object obj) {
-        if (obj == null) {
-            return null;
-        }
-
-        // 对基本类型的包装类进行判断和转换
-        if (obj instanceof Integer || obj instanceof Double || obj instanceof Float ||
-                obj instanceof Long || obj instanceof Short || obj instanceof Byte ||
-                obj instanceof Boolean || obj instanceof Character) {
-            return (T) obj; // 直接返回，利用自动装箱
-        }
-
-        // 如果有其他类型需要转换处理，可以在这里继续添加逻辑
-        // 例如，如果你需要特殊处理String类型
-//        if (obj instanceof String) {
-//            return (T) obj; // 假设直接返回String对象
-//        }
-
-        // 如果不符合以上任何条件，可以返回null或抛出异常
-        return null;
-    }
-
-    private Method findMethod(Class<?> aClass, String methodName) {
-        for (Method method : aClass.getMethods()) {
-            if (method.getName().equals(methodName)) {
-                return method;
-            }
-        }
-        return null;
-    }
-
 }

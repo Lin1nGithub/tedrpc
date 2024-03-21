@@ -3,10 +3,12 @@ package cn.theodore.tedrpc.core.consumer;
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.*;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
+import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -33,12 +35,21 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
     // 设置接口的代理类
     // 此时已初始化完成
     public void start() {
 
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
 
         // 获取注册中心
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
@@ -93,11 +104,16 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
      * @return
      */
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
-        String canonicalName = service.getCanonicalName();
-        List<InstanceMeta> providers = rc.fetchAll(canonicalName);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(service.getCanonicalName())
+                .app(app)
+                .namespace(namespace)
+                .env(env)
+                .build();
+        List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
         System.out.println(" ===> map to providers: ");
 
-        rc.subscribe(canonicalName, event -> {
+        rc.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());
         });

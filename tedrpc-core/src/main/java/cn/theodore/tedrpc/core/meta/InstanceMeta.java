@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
+ * 描述服务实例
  * @author linkuan
  */
 @Data

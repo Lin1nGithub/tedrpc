@@ -1,6 +1,7 @@
 package cn.theodore.tedrpc.core.api;
 
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
+import cn.theodore.tedrpc.core.meta.ServiceMeta;
 
 import java.util.List;
 
@@ -24,9 +25,9 @@ public interface RegistryCenter {
      * @param service
      * @param instance
      */
-    void register(String service, InstanceMeta instance);
+    void register(ServiceMeta service, InstanceMeta instance);
 
-    void unregister(String service, InstanceMeta instance);
+    void unregister(ServiceMeta service, InstanceMeta instance);
 
     // consumer侧
 
@@ -36,13 +37,13 @@ public interface RegistryCenter {
      * @param service
      * @return
      */
-    List<InstanceMeta> fetchAll(String service);
+    List<InstanceMeta> fetchAll(ServiceMeta service);
 
     /**
      * 监听到服务的变化 然后需要做的操作
      * provider挂掉的时候 需要通知到consumer注销节点
      */
-    void subscribe(String service, ChangeListener changeListener);
+    void subscribe(ServiceMeta service, ChangeListener changeListener);
 
     /**
      * 静态注册中心
@@ -66,22 +67,22 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(String service, InstanceMeta instance) {
+        public void register(ServiceMeta service, InstanceMeta instance) {
 
         }
 
         @Override
-        public void unregister(String service, InstanceMeta instance) {
+        public void unregister(ServiceMeta service, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<InstanceMeta> fetchAll(String service) {
+        public List<InstanceMeta> fetchAll(ServiceMeta service) {
             return providers;
         }
 
         @Override
-        public void subscribe(String service, ChangeListener changeListener) {
+        public void subscribe(ServiceMeta service, ChangeListener changeListener) {
 
         }
 
