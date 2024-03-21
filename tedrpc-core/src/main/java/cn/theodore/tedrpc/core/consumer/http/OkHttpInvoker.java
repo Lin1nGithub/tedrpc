@@ -1,7 +1,8 @@
-package cn.theodore.tedrpc.core.consumer;
+package cn.theodore.tedrpc.core.consumer.http;
 
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
+import cn.theodore.tedrpc.core.consumer.HttpInvoker;
 import com.alibaba.fastjson.JSON;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;

@@ -2,7 +2,6 @@ package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.*;
-import cn.theodore.tedrpc.core.consumer.http.TedInvocationHandler;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -72,6 +71,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
                     if (consumer == null) {
                         // 设置代理类
                         consumer = createFromRegistry(service, context, rc);
+                        stub.put(serviceName, consumer);
 //                        consumer = createConsumer(service, context, List.of(providers));
                     }
                     field.setAccessible(true);

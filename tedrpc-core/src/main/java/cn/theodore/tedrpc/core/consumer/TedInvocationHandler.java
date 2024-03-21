@@ -1,13 +1,12 @@
-package cn.theodore.tedrpc.core.consumer.http;
+package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.consumer.HttpInvoker;
-import cn.theodore.tedrpc.core.consumer.OkHttpInvoker;
+import cn.theodore.tedrpc.core.consumer.http.OkHttpInvoker;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import cn.theodore.tedrpc.core.util.TypeUtils;
-import okhttp3.MediaType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
