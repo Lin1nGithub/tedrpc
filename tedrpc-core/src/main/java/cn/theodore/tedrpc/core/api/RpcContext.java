@@ -1,5 +1,6 @@
 package cn.theodore.tedrpc.core.api;
 
+import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
 import java.util.List;
@@ -19,10 +20,10 @@ public class RpcContext {
     /**
      * 路由
      */
-    private Router router;
+    private Router<InstanceMeta> router;
 
     /**
      * 均衡负载
      */
-    private LoadBalancer loadBalancer;
+    private LoadBalancer<InstanceMeta> loadBalancer;
 }

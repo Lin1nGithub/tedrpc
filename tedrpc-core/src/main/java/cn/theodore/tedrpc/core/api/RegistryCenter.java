@@ -1,5 +1,7 @@
 package cn.theodore.tedrpc.core.api;
 
+import cn.theodore.tedrpc.core.meta.InstanceMeta;
+
 import java.util.List;
 
 /**
@@ -22,9 +24,9 @@ public interface RegistryCenter {
      * @param service
      * @param instance
      */
-    void register(String service, String instance);
+    void register(String service, InstanceMeta instance);
 
-    void unregister(String service, String instance);
+    void unregister(String service, InstanceMeta instance);
 
     // consumer侧
 
@@ -34,7 +36,7 @@ public interface RegistryCenter {
      * @param service
      * @return
      */
-    List<String> fetchAll(String service);
+    List<InstanceMeta> fetchAll(String service);
 
     /**
      * 监听到服务的变化 然后需要做的操作
@@ -47,9 +49,9 @@ public interface RegistryCenter {
      */
     class StaticRegistryCenter implements RegistryCenter {
 
-        List<String> providers;
+        List<InstanceMeta> providers;
 
-        public StaticRegistryCenter(List<String> providers) {
+        public StaticRegistryCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -64,17 +66,17 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(String service, String instance) {
+        public void register(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public void unregister(String service, String instance) {
+        public void unregister(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<String> fetchAll(String service) {
+        public List<InstanceMeta> fetchAll(String service) {
             return providers;
         }
 

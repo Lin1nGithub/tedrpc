@@ -3,8 +3,8 @@ package cn.theodore.tedrpc.core.consumer;
 import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
-import cn.theodore.tedrpc.core.consumer.HttpInvoker;
 import cn.theodore.tedrpc.core.consumer.http.OkHttpInvoker;
+import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import cn.theodore.tedrpc.core.util.TypeUtils;
 
@@ -22,11 +22,11 @@ public class TedInvocationHandler implements InvocationHandler {
 
     private RpcContext context;
 
-    private List<String> providers;
+    private List<InstanceMeta> providers;
 
     private HttpInvoker httpInvoker = new OkHttpInvoker();
 
-    public TedInvocationHandler(Class<?> clz, RpcContext context, List<String> providers) {
+    public TedInvocationHandler(Class<?> clz, RpcContext context, List<InstanceMeta> providers) {
         this.service = clz;
         this.context = context;
         this.providers = providers;
@@ -43,10 +43,10 @@ public class TedInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        List<String> urls = context.getRouter().route(providers);
-        String url = (String) context.getLoadBalancer().choose(urls);
-        System.out.println("loadBalancer.choose(url) ==> " + url);
-        RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
+        List<InstanceMeta> instances = context.getRouter().route(providers);
+        InstanceMeta instance = context.getLoadBalancer().choose(instances);
+        System.out.println("loadBalancer.choose(nodes) ==> " + instance);
+        RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toString());
 
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
             Object data = rpcResponse.getData();

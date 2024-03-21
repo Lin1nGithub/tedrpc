@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.*;
+import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -93,19 +94,15 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
      */
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         String canonicalName = service.getCanonicalName();
-        List<String> providers = mapUrl(rc.fetchAll(canonicalName));
+        List<InstanceMeta> providers = rc.fetchAll(canonicalName);
         System.out.println(" ===> map to providers: ");
 
         rc.subscribe(canonicalName, event -> {
             providers.clear();
-            providers.addAll(mapUrl(event.getData()));
+            providers.addAll(event.getData());
         });
 
         return createConsumer(service, context, providers);
-    }
-
-    private List<String> mapUrl(List<String> nodes) {
-        return nodes.stream().map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
     }
 
     /**
@@ -116,7 +113,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
      * @param providers
      * @return
      */
-    private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {
+    private Object createConsumer(Class<?> service, RpcContext context, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class[]{service},
                 new TedInvocationHandler(service, context, providers));

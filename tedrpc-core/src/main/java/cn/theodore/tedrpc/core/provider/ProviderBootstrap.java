@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.annotation.TedProvider;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
+import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
@@ -33,9 +34,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private LinkedMultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @Value("${server.port}")
-    private String port;
+    private Integer port;
 
-    private String instance;
+    private InstanceMeta instance;
 
     private RegistryCenter rc = null;
 
@@ -63,7 +64,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @SneakyThrows
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
-        this.instance = ip + "_" + port;
+        this.instance = InstanceMeta.http(ip, port);
         rc.start();
         skeleton.keySet().forEach(this::registerService); // zk就有了 spring还未完成
     }
