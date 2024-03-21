@@ -3,6 +3,7 @@ package cn.theodore.tedrpc.core.consumer;
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.*;
 import cn.theodore.tedrpc.core.registry.Event;
+import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,7 +55,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         for (String beanDefinitionName : beanDefinitionNames) {
             Object bean = applicationContext.getBean(beanDefinitionName);
 
-            List<Field> fields = findAnnotationField(bean.getClass());
+            List<Field> fields = MethodUtils.findAnnotationField(bean.getClass(), TedConsumer.class);
 
             if (fields.isEmpty()) {
                 continue;
@@ -120,24 +121,5 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class[]{service},
                 new TedInvocationHandler(service, context, providers));
-    }
-
-
-    private List<Field> findAnnotationField(Class<?> aClass) {
-        List<Field> result = new ArrayList<>();
-
-        while (aClass != null) {
-            // TedrpcDemoConsumerApplication 启动类是被代理过的 无法直接拿到里面的fields
-            Field[] fields = aClass.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(TedConsumer.class)) {
-                    result.add(field);
-                }
-            }
-
-            aClass = aClass.getSuperclass();
-        }
-
-        return result;
     }
 }

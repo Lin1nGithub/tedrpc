@@ -1,7 +1,13 @@
 package cn.theodore.tedrpc.core.util;
 
+import cn.theodore.tedrpc.core.annotation.TedConsumer;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * method方法处理类
@@ -55,5 +61,23 @@ public class MethodUtils {
             sb.append("_").append(c.getCanonicalName());
         });
         return sb.toString();
+    }
+
+    public static List<Field> findAnnotationField(Class<?> aClass, Class<? extends Annotation> annotationClass) {
+        List<Field> result = new ArrayList<>();
+
+        while (aClass != null) {
+            // TedrpcDemoConsumerApplication 启动类是被代理过的 无法直接拿到里面的fields
+            Field[] fields = aClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(annotationClass)) {
+                    result.add(field);
+                }
+            }
+
+            aClass = aClass.getSuperclass();
+        }
+
+        return result;
     }
 }

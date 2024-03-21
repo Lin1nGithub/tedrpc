@@ -52,20 +52,7 @@ public class TedInvocationHandler implements InvocationHandler {
 
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
             Object data = rpcResponse.getData();
-            if (data instanceof JSONObject) {
-                JSONObject jsonResult = (JSONObject) rpcResponse.getData();
-                return jsonResult.toJavaObject(method.getReturnType());
-            }else if (data instanceof JSONArray jsonArray) {
-                Object[] array = jsonArray.stream().toArray();
-                Class<?> componentType = method.getReturnType().getComponentType();
-                Object resultArray = Array.newInstance(componentType, array.length);
-                for (int i = 0; i < array.length; i++) {
-                    Array.set(resultArray,i, array[i]);
-                }
-                return resultArray;
-            }else {
-                return TypeUtils.castType(data, method.getReturnType());
-            }
+            return TypeUtils.castMethodResult(method, data);
         }else {
             Exception ex = rpcResponse.getEx();
             // ex.printStackTrace();
