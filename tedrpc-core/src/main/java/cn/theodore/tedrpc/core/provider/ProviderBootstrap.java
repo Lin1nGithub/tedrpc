@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@Slf4j
 public class ProviderBootstrap implements ApplicationContextAware {
 
     @Resource
@@ -59,7 +61,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void init() {
         // 拿到
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(TedProvider.class);
-        providers.forEach((x, y) -> System.out.println(x));
+        providers.forEach((x, y) -> log.info(x));
 
         // 拿到全限定名 并且进行放置
         providers.values().forEach(this::getInterface);
@@ -96,7 +98,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
      */
     @PreDestroy
     public void stop() {
-        System.out.println(" ====> unreg all services.");
+        log.info(" ====> unreg all services.");
         skeleton.keySet().forEach(this::unRegisterService);
         rc.stop();
     }
@@ -132,7 +134,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
                 .methodSign(MethodUtils.methodSign(method))
                 .ServiceImpl(impl)
                 .build();
-        System.out.println("create a provider: " + meta);
+        log.info("create a provider: " + meta);
         skeleton.add(service.getCanonicalName(), meta);
     }
 }

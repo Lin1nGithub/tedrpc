@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
 import cn.theodore.tedrpc.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +15,7 @@ import java.util.Optional;
 /**
  * @author linkuan
  */
+@Slf4j
 public class ProviderInvoker {
 
     private LinkedMultiValueMap<String, ProviderMeta> skeleton;
@@ -23,7 +25,7 @@ public class ProviderInvoker {
     }
 
     public RpcResponse invoke(RpcRequest request) {
-        System.out.println("request ==>" + request);
+        log.info("request ==>" + request);
         String methodSign = request.getMethodSign();
 
         RpcResponse rpcResponse = new RpcResponse();

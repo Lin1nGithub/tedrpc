@@ -22,6 +22,7 @@ import java.util.List;
  * @author linkuan
  */
 @Configuration
+@Slf4j
 public class ConsumerConfig {
 
     @Value("${tedrpc.providers}")
@@ -36,7 +37,7 @@ public class ConsumerConfig {
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner consumerBootStrap_runner(@Autowired ConsumerBootStrap consumerBootStrap) {
        return x -> {
-           System.out.println("consumerBootStrap start");
+           log.info("consumerBootStrap start");
            consumerBootStrap.start();
        };
     }

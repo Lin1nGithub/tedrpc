@@ -6,6 +6,7 @@ import cn.theodore.tedrpc.core.consumer.ConsumerConfig;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @Import({ConsumerConfig.class})
 @RestController
+@Slf4j
 public class TedrpcDemoConsumerApplication {
 
     @TedConsumer
@@ -54,7 +56,7 @@ public class TedrpcDemoConsumerApplication {
 //            // 强转为返回值要求的Long类型报错。
 //            // 解决方法: consumer端的TedInvocationHandler中进行参数转换
 //            Long id = userService.findById(10L);
-//            System.out.println("RPC result userService.findById(10) ==> " + id);
+//            log.info("RPC result userService.findById(10) ==> " + id);
 //
 //
 //            // 报错原因: provider端, method中要求的参数类型是User对象,
@@ -63,25 +65,25 @@ public class TedrpcDemoConsumerApplication {
 //            User user = new User();
 //            user.setId(100);
 //            user.setName("cc");
-//            System.out.println("RPC result userService.getId(user) ==> " + userService.getId(user));
+//            log.info("RPC result userService.getId(user) ==> " + userService.getId(user));
 //
 //            User user1 = userService.findById(1,"hubao");
-//            System.out.println("RPC result userService.findById findById(1,\"hubao\")" + user1);
+//            log.info("RPC result userService.findById findById(1,\"hubao\")" + user1);
 //
-//            System.out.println(userService.getName());
+//            log.info(userService.getName());
 //
-//            System.out.println(userService.getName(123));
+//            log.info(userService.getName(123));
 
-            System.out.println("RPC result userService.getIds() ==> ");
+            log.info("RPC result userService.getIds() ==> ");
             int[] ids = userService.getIds();
             for (int i : ids) {
-                System.out.println(i);
+                log.info("" + i);
             }
 
-            System.out.println("RPC result userService.getIds(new int[]{3, 4, 5}) ==> ");
+            log.info("RPC result userService.getIds(new int[]{3, 4, 5}) ==> ");
             int[] ids1 = userService.getIds(new int[]{3, 4, 5});
             for (int i : ids1) {
-                System.out.println(i);
+                log.info("" + i);
             }
 
             // 可以调用远程 到toString方法 类似的还有 hashCode
@@ -89,7 +91,7 @@ public class TedrpcDemoConsumerApplication {
 //            int i = userService.hashCode();
 
 //            Order order = orderService.findById(2);
-//            System.out.println("RPC result orderService.findById= " + order);
+//            log.info("RPC result orderService.findById= " + order);
 //
 //
 

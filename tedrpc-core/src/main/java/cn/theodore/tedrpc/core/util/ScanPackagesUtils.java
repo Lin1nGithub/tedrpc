@@ -1,6 +1,7 @@
 package cn.theodore.tedrpc.core.util;
 
 import io.micrometer.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
 /**
  * @author linkuan
  */
-
+@Slf4j
 public class ScanPackagesUtils {
 
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
@@ -35,17 +36,17 @@ public class ScanPackagesUtils {
             }
             String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
                     ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders(basePackage)) + "/" + DEFAULT_RESOURCE_PATTERN;
-            System.out.println("packageSearchPath="+packageSearchPath);
+            log.info("packageSearchPath="+packageSearchPath);
             try {
                 Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
                 for (Resource resource : resources) {
-                    //System.out.println(" resource: " + resource.getFilename());
+                    //log.info(" resource: " + resource.getFilename());
                     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
                     ClassMetadata classMetadata = metadataReader.getClassMetadata();
                     String className = classMetadata.getClassName();
                     Class<?> clazz = Class.forName(className);
                     if(predicate.test(clazz)) {
-                        //System.out.println(" ===> class: " + className);
+                        //log.info(" ===> class: " + className);
                         results.add(clazz);
                     }
                 }
@@ -59,14 +60,13 @@ public class ScanPackagesUtils {
     public static void main(String[] args) {
         String packages = "cn.theodore.tedrpc";
 
-        System.out.println(" 1. *********** ");
-        System.out.println(" => scan all classes for packages: " + packages);
+        log.info(" 1. *********** ");
+        log.info(" => scan all classes for packages: " + packages);
         List<Class<?>> classes = scanPackages(packages.split(","), p -> true);
         classes.forEach(System.out::println);
 
-        System.out.println();
-        System.out.println(" 2. *********** ");
-        System.out.println(" => scan all classes with @Configuration for packages: " + packages);
+        log.info(" 2. *********** ");
+        log.info(" => scan all classes with @Configuration for packages: " + packages);
         List<Class<?>> classesWithConfig = scanPackages(packages.split(","),
                 p -> Arrays.stream(p.getAnnotations())
                         .anyMatch(a -> a.annotationType().equals(Configuration.class)));

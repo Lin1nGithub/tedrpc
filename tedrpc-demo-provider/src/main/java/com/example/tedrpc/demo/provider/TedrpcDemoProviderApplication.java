@@ -6,6 +6,7 @@ import cn.theodore.tedrpc.core.provider.ProviderBootstrap;
 import cn.theodore.tedrpc.core.provider.ProviderConfig;
 import cn.theodore.tedrpc.core.provider.ProviderInvoker;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RestController
 @Import({ProviderConfig.class})
+@Slf4j
 public class TedrpcDemoProviderApplication {
 
     public static void main(String[] args) {
@@ -42,7 +44,7 @@ public class TedrpcDemoProviderApplication {
             request.setArgs(new Object[]{100});
 
             RpcResponse rpcResponse = invoke(request);
-            System.out.println("return :" + rpcResponse.getData());
+            log.info("return :" + rpcResponse.getData());
 
             RpcRequest request1 = new RpcRequest();
             request1.setService("cn.theodore.tedrpc.demo.api.UserService");
@@ -50,7 +52,7 @@ public class TedrpcDemoProviderApplication {
             request1.setArgs(new Object[]{200,"cc"});
 
             RpcResponse rpcResponse1 = invoke(request1);
-            System.out.println("return :" + rpcResponse1.getData());
+            log.info("return :" + rpcResponse1.getData());
         };
     }
 }

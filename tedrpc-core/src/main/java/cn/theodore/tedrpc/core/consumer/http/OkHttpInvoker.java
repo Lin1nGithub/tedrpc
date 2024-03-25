@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.consumer.HttpInvoker;
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author linkuan
  */
+@Slf4j
 public class OkHttpInvoker implements HttpInvoker {
 
     private OkHttpClient client;
@@ -40,7 +42,7 @@ public class OkHttpInvoker implements HttpInvoker {
                 .build();
         try {
             String respJson = client.newCall(request).execute().body().string();
-            System.out.println("====> respJson " + respJson);
+            log.info("====> respJson " + respJson);
             RpcResponse rpcResponse = JSON.parseObject(respJson, RpcResponse.class);
             return rpcResponse;
         } catch (IOException e) {

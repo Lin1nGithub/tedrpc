@@ -5,6 +5,7 @@ import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * 使用 curator连接zk客户端
  * @author linkuan
  */
+@Slf4j
 public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client = null;
@@ -43,13 +45,13 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .namespace(root)
                 .retryPolicy(retryPolicy)
                 .build();
-        System.out.println("====> zk client started to server["+ servers + "/" + root + "].");
+        log.info("====> zk client started to server["+ servers + "/" + root + "].");
         client.start();
     }
 
     @Override
     public void stop() {
-        System.out.println("====> zk client stopped.");
+        log.info("====> zk client stopped.");
         cache.close();
         client.close();
     }
@@ -70,7 +72,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }
             // 创建实例的临时性节点
             String instancePath = servicePath + "/" + instance.toPath();
-            System.out.println("====> register to zk:" + instancePath);
+            log.info("====> register to zk:" + instancePath);
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -93,7 +95,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }
             // 删除实例节点
             String instancePath = servicePath + "/" + instance.toPath();
-            System.out.println("====> unregister to zk:" + instancePath);
+            log.info("====> unregister to zk:" + instancePath);
             // 报异常 默默处理
             client.delete().quietly().forPath(instancePath);
         } catch (Exception e) {
@@ -106,7 +108,7 @@ public class ZkRegistryCenter implements RegistryCenter {
         String servicePath = "/" + service.toPath();
         try {
             List<String> nodes = client.getChildren().forPath(servicePath);
-            System.out.println(" ===> fetchAll from zk: " + servicePath);
+            log.info(" ===> fetchAll from zk: " + servicePath);
             nodes.forEach(System.out::println);
 
             return mapInstances(nodes);
@@ -139,7 +141,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .build();
         cache.getListenable().addListener((curator, event) -> {
             // 有任何节点变动 这里会执行
-            System.out.println("zk subscribe event: "+ event);
+            log.info("zk subscribe event: "+ event);
             List<InstanceMeta> nodes = fetchAll(service);
             listener.fire(new Event(nodes));
         });

@@ -1,13 +1,17 @@
 package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
-import cn.theodore.tedrpc.core.api.*;
+import cn.theodore.tedrpc.core.api.LoadBalancer;
+import cn.theodore.tedrpc.core.api.RegistryCenter;
+import cn.theodore.tedrpc.core.api.Router;
+import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -19,7 +23,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 消费端实现类.
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
+@Slf4j
 public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAware {
 
     @Resource
@@ -73,7 +77,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
             fields.forEach(field -> {
                 try {
-                    System.out.println("====>" + field.getName());
+                    log.info("====>" + field.getName());
                     // 对每个field生成代理
                     Class<?> service = field.getType();
                     // 全限定名称
@@ -111,7 +115,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
                 .env(env)
                 .build();
         List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
-        System.out.println(" ===> map to providers: ");
+        log.info(" ===> map to providers: ");
 
         rc.subscribe(serviceMeta, event -> {
             providers.clear();

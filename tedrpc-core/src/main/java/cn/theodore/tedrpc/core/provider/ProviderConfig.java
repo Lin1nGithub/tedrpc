@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.registry.ZkRegistryCenter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.core.annotation.Order;
  * @author linkuan
  */
 @Configuration
+@Slf4j
 public class ProviderConfig {
 
     @Bean
@@ -29,9 +31,9 @@ public class ProviderConfig {
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner providerBootStrap_runner(@Autowired ProviderBootstrap providerBootstrap) {
         return x -> {
-            System.out.println("providerBootstrap start....");
+            log.info("providerBootstrap start....");
             providerBootstrap.start();
-            System.out.println("providerBootstrap start....");
+            log.info("providerBootstrap start....");
         };
     }
 

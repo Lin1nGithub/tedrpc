@@ -7,6 +7,7 @@ import cn.theodore.tedrpc.core.consumer.http.OkHttpInvoker;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
 import cn.theodore.tedrpc.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -16,6 +17,7 @@ import java.util.List;
  * 消费端的动态代理处理类.
  * @author linkuan
  */
+@Slf4j
 public class TedInvocationHandler implements InvocationHandler {
 
     private Class<?> service;
@@ -45,7 +47,7 @@ public class TedInvocationHandler implements InvocationHandler {
 
         List<InstanceMeta> instances = context.getRouter().route(providers);
         InstanceMeta instance = context.getLoadBalancer().choose(instances);
-        System.out.println("loadBalancer.choose(nodes) ==> " + instance);
+        log.info("loadBalancer.choose(nodes) ==> " + instance);
         RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
 
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
