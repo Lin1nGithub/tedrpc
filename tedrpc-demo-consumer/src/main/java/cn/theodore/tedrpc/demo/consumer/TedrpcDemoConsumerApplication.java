@@ -70,21 +70,21 @@ public class TedrpcDemoConsumerApplication {
 //            User user1 = userService.findById(1,"hubao");
 //            log.info("RPC result userService.findById findById(1,\"hubao\")" + user1);
 //
-//            log.info(userService.getName());
+            log.info("RPC result userService.getName() ===> " + userService.getName());
 //
 //            log.info(userService.getName(123));
 
-            log.info("RPC result userService.getIds() ==> ");
-            int[] ids = userService.getIds();
-            for (int i : ids) {
-                log.info("" + i);
-            }
-
-            log.info("RPC result userService.getIds(new int[]{3, 4, 5}) ==> ");
-            int[] ids1 = userService.getIds(new int[]{3, 4, 5});
-            for (int i : ids1) {
-                log.info("" + i);
-            }
+//            log.info("RPC result userService.getIds() ==> ");
+//            int[] ids = userService.getIds();
+//            for (int i : ids) {
+//                log.info("" + i);
+//            }
+//
+//            log.info("RPC result userService.getIds(new int[]{3, 4, 5}) ==> ");
+//            int[] ids1 = userService.getIds(new int[]{3, 4, 5});
+//            for (int i : ids1) {
+//                log.info("" + i);
+//            }
 
             // 可以调用远程 到toString方法 类似的还有 hashCode
 //            String string = userService.toString();

@@ -1,4 +1,4 @@
 logging:
   level:
-    root: info
-    cn.theodore.tedrpc: error
+    root: error
+    cn.theodore.tedrpc: info

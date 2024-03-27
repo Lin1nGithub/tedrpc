@@ -1,10 +1,7 @@
 package cn.theodore.tedrpc.core.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
-import cn.theodore.tedrpc.core.api.LoadBalancer;
-import cn.theodore.tedrpc.core.api.RegistryCenter;
-import cn.theodore.tedrpc.core.api.Router;
-import cn.theodore.tedrpc.core.api.RpcContext;
+import cn.theodore.tedrpc.core.api.*;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
@@ -54,6 +51,7 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
         Router<InstanceMeta> router = applicationContext.getBean(Router.class);
         LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
 
         // 获取注册中心
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
@@ -64,6 +62,8 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         context.setRouter(router);
         // 设置均衡负载
         context.setLoadBalancer(loadBalancer);
+        // 设置过滤器
+        context.setFilters(filters);
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
