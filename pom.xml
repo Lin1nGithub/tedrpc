@@ -27,7 +27,7 @@
         <module>tedrpc-core</module>
         <module>tedrpc-demo-api</module>
         <module>tedrpc-demo-provider</module>
-<!--        <module>tedrpc-demo-consumer</module>-->
+        <module>tedrpc-demo-consumer</module>
     </modules>
 
 </project>
