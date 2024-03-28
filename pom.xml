@@ -2,53 +2,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
-<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
-    </parent>
     <groupId>cn.theodore</groupId>
     <artifactId>tedrpc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>tedrpc</name>
     <description>tedrpc</description>
     <packaging>pom</packaging>
+
+    <!-- 默认主pom不是spring boot项目-->
+    <!-- 非springboot的项目去掉 spring-boot-maven-plugin-->
+
+
     <properties>
         <java.version>17</java.version>
+        <spring.boot.version>3.2.3</spring.boot.version>
+        <!-- maven 默认的编译级别 此处定义子项目中可继承-->
+        <maven.complier.source>17</maven.complier.source>
+        <maven.complier.tareget>17</maven.complier.tareget>
+        <!-- maven 默认字符类型-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
         <module>tedrpc-core</module>
         <module>tedrpc-demo-api</module>
-        <module>tedrpc-demo-provider</module>
-        <module>tedrpc-demo-consumer</module>
+<!--        <module>tedrpc-demo-provider</module>-->
+<!--        <module>tedrpc-demo-consumer</module>-->
     </modules>
-
-    <dependencies>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

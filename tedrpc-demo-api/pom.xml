@@ -12,17 +12,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>tedrpc-demo-api</name>
     <description>tedrpc-demo-api</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
 
 </project>
