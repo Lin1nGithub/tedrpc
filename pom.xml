@@ -17,8 +17,8 @@
         <java.version>17</java.version>
         <spring.boot.version>3.2.3</spring.boot.version>
         <!-- maven 默认的编译级别 此处定义子项目中可继承-->
-        <maven.complier.source>17</maven.complier.source>
-        <maven.complier.tareget>17</maven.complier.tareget>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <!-- maven 默认字符类型-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -26,7 +26,7 @@
     <modules>
         <module>tedrpc-core</module>
         <module>tedrpc-demo-api</module>
-<!--        <module>tedrpc-demo-provider</module>-->
+        <module>tedrpc-demo-provider</module>
 <!--        <module>tedrpc-demo-consumer</module>-->
     </modules>
 
