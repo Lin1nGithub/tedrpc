@@ -1,9 +1,10 @@
-package cn.theodore.tedrpc.core.registry;
+package cn.theodore.tedrpc.core.registry.zk;
 
-import cn.theodore.tedrpc.core.api.ChangeListener;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
+import cn.theodore.tedrpc.core.registry.ChangedListener;
+import cn.theodore.tedrpc.core.registry.Event;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -134,7 +135,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     @SneakyThrows
-    public void subscribe(ServiceMeta service, ChangeListener listener) {
+    public void subscribe(ServiceMeta service, ChangedListener listener) {
         cache = TreeCache.newBuilder(client, "/" + service.toPath())
                 .setCacheData(true)
                 .setMaxDepth(2)

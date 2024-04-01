@@ -1,7 +1,7 @@
 package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.api.RegistryCenter;
-import cn.theodore.tedrpc.core.registry.ZkRegistryCenter;
+import cn.theodore.tedrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
