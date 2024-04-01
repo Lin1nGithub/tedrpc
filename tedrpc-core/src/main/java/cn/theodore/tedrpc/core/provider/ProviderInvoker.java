@@ -2,7 +2,7 @@ package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
-import cn.theodore.tedrpc.core.api.TedrpcException;
+import cn.theodore.tedrpc.core.api.RpcException;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
 import cn.theodore.tedrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +45,10 @@ public class ProviderInvoker {
             rpcResponse.setData(result);
         } catch (InvocationTargetException ex) {
             rpcResponse.setMessage("调用失败");
-            rpcResponse.setEx(new TedrpcException(ex.getTargetException().getMessage()));
+            rpcResponse.setEx(new RpcException(ex.getTargetException().getMessage()));
         } catch (IllegalAccessException ex) {
             rpcResponse.setMessage("调用失败");
-            rpcResponse.setEx(new TedrpcException(ex.getMessage()));
+            rpcResponse.setEx(new RpcException(ex.getMessage()));
         }
         return rpcResponse;
     }

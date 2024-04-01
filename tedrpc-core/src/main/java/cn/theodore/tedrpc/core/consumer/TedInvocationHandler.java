@@ -78,10 +78,10 @@ public class TedInvocationHandler implements InvocationHandler {
             return TypeUtils.castMethodResult(method, rpcResponse.getData());
         } else {
             Exception exception = rpcResponse.getEx();
-            if (exception instanceof TedrpcException ex) {
+            if (exception instanceof RpcException ex) {
                 throw ex;
             }
-            throw new TedrpcException(rpcResponse.getEx(), TedrpcException.UNKNOWN_EX);
+            throw new RpcException(rpcResponse.getEx(), RpcException.UNKNOWN_EX);
         }
     }
 

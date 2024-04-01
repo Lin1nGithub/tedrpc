@@ -1,7 +1,7 @@
 package cn.theodore.tedrpc.core.registry.zk;
 
 import cn.theodore.tedrpc.core.api.RegistryCenter;
-import cn.theodore.tedrpc.core.api.TedrpcException;
+import cn.theodore.tedrpc.core.api.RpcException;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
 import cn.theodore.tedrpc.core.registry.ChangedListener;
@@ -77,7 +77,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             log.info("====> register to zk:" + instancePath);
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
         } catch (Exception e) {
-            throw new TedrpcException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -101,7 +101,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             // 报异常 默默处理
             client.delete().quietly().forPath(instancePath);
         } catch (Exception e) {
-            throw new TedrpcException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -115,7 +115,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
             return mapInstances(nodes);
         } catch (Exception e) {
-            throw new TedrpcException(e);
+            throw new RpcException(e);
         }
     }
 

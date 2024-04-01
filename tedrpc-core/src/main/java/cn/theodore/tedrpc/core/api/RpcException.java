@@ -6,32 +6,32 @@ import lombok.Data;
  * @author linkuan
  */
 @Data
-public class TedrpcException extends RuntimeException {
+public class RpcException extends RuntimeException {
 
     private String errorCode;
 
 
-    public TedrpcException() {
+    public RpcException() {
     }
 
-    public TedrpcException(String message) {
+    public RpcException(String message) {
         super(message);
     }
 
-    public TedrpcException(String message, Throwable cause) {
+    public RpcException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public TedrpcException(Throwable cause) {
+    public RpcException(Throwable cause) {
         super(cause);
     }
 
-    public TedrpcException(Throwable cause, String errorCode) {
+    public RpcException(Throwable cause, String errorCode) {
         super(cause);
         this.errorCode = errorCode;
     }
 
-    public TedrpcException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RpcException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
