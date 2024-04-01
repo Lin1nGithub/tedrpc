@@ -20,4 +20,8 @@ public interface UserService {
     int[] getIds();
 
     int[] getIds(int[] ids);
+
+    User ex(boolean flag);
+
+    void setTimeoutPorts(String timeoutPorts);
 }

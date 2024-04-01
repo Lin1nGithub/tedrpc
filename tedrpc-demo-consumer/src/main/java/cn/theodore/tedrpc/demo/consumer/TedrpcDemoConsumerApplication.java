@@ -99,6 +99,14 @@ public class TedrpcDemoConsumerApplication {
 
 
             // demo.test1();;
+
+            System.out.println("Case 17. >>===[测试服务端抛出一个RuntimeException异常]===");
+            try {
+                User userEx = userService.ex(true);
+                log.info(userEx + "");
+            } catch (RuntimeException e) {
+                log.info(" ===> exception: " + e.getMessage());
+            }
         };
     }
 

@@ -7,6 +7,8 @@ import jakarta.annotation.Resource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 /**
  * @author linkuan
  */
@@ -16,7 +18,6 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private Environment environment;
-
 
     @Override
     public User findById(int id) {
@@ -57,5 +58,18 @@ public class UserServiceImpl implements UserService {
     public int[] getIds(int[] ids) {
         return ids;
     }
+
+    String timeoutPorts = "8081,8094";
+
+    @Override
+    public User ex(boolean flag) {
+        if(flag) throw new RuntimeException("just throw an exception");
+        return new User(100, "ted100");
+    }
+
+    public void setTimeoutPorts(String timeoutPorts) {
+        this.timeoutPorts = timeoutPorts;
+    }
+
 
 }

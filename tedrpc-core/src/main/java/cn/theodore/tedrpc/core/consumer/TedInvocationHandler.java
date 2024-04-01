@@ -1,9 +1,6 @@
 package cn.theodore.tedrpc.core.consumer;
 
-import cn.theodore.tedrpc.core.api.Filter;
-import cn.theodore.tedrpc.core.api.RpcContext;
-import cn.theodore.tedrpc.core.api.RpcRequest;
-import cn.theodore.tedrpc.core.api.RpcResponse;
+import cn.theodore.tedrpc.core.api.*;
 import cn.theodore.tedrpc.core.consumer.http.OkHttpInvoker;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.util.MethodUtils;
@@ -80,8 +77,11 @@ public class TedInvocationHandler implements InvocationHandler {
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
             return TypeUtils.castMethodResult(method, rpcResponse.getData());
         } else {
-            // ex.printStackTrace();
-            throw new RuntimeException(rpcResponse.getEx());
+            Exception exception = rpcResponse.getEx();
+            if (exception instanceof TedrpcException ex) {
+                throw ex;
+            }
+            throw new TedrpcException(rpcResponse.getEx(), TedrpcException.UNKNOWN_EX);
         }
     }
 
