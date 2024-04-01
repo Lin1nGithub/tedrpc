@@ -1,0 +1,16 @@
+server:
+  port: 8089
+tedrpc:
+  providers: http://localhost:8081/,http://localhost:8082/,http://localhost:8083/
+  zkServer: localhost:2181
+  zkRoot: tedrpc
+
+app:
+  id: app1
+  namespace: public
+  env: dev
+
+logging:
+  level:
+    root: info
+    cn.theodore.tedrpc: debug
