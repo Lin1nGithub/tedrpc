@@ -78,12 +78,10 @@ public class TedInvocationHandler implements InvocationHandler {
     @Nullable
     private static Object caseReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.getCode() != null && rpcResponse.getCode().equals(200)) {
-            Object data = rpcResponse.getData();
-            return TypeUtils.castMethodResult(method, data);
+            return TypeUtils.castMethodResult(method, rpcResponse.getData());
         } else {
-            Exception ex = rpcResponse.getEx();
             // ex.printStackTrace();
-            throw new RuntimeException(ex);
+            throw new RuntimeException(rpcResponse.getEx());
         }
     }
 
