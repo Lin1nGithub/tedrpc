@@ -3,7 +3,9 @@ package cn.theodore.tedrpc.core.api;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * rpc上下文
@@ -26,4 +28,9 @@ public class RpcContext {
      * 均衡负载
      */
     private LoadBalancer<InstanceMeta> loadBalancer;
+
+    /**
+     * 上下文参数
+     */
+    private Map<String, String> parameters = new HashMap<>();
 }

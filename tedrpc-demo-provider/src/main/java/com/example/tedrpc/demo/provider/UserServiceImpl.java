@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.annotation.TedProvider;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.Arrays;
  */
 @Component
 @TedProvider
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Resource
@@ -63,8 +65,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User ex(boolean flag) {
-        if(flag) throw new RuntimeException("just throw an exception");
+        if (flag) throw new RuntimeException("just throw an exception");
         return new User(100, "ted100");
+    }
+
+    @Override
+    public User find(int timeout) {
+        log.info("find timetout:{}", timeout);
+        String port = environment.getProperty("server.port");
+        try {
+            Thread.sleep(timeout);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return new User(1001, "TED001");
     }
 
     public void setTimeoutPorts(String timeoutPorts) {

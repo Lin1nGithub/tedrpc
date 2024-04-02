@@ -23,12 +23,12 @@ public class OkHttpInvoker implements HttpInvoker {
 
     private final static MediaType JSONTYPE = MediaType.get("application/json;charset=utf-8");
 
-    public OkHttpInvoker() {
+    public OkHttpInvoker(int timeout) {
         client = new OkHttpClient.Builder()
 //            .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-                .readTimeout(1, TimeUnit.SECONDS)
-                .writeTimeout(1, TimeUnit.SECONDS)
-                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
     }
 
@@ -36,6 +36,7 @@ public class OkHttpInvoker implements HttpInvoker {
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
+        log.info(" ===> reqJson = " + reqJson);
         Request request = new Request.Builder()
                 .url(url)
                 .post(RequestBody.create(reqJson, JSONTYPE))
@@ -45,7 +46,7 @@ public class OkHttpInvoker implements HttpInvoker {
             log.info("====> respJson " + respJson);
             RpcResponse rpcResponse = JSON.parseObject(respJson, RpcResponse.class);
             return rpcResponse;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

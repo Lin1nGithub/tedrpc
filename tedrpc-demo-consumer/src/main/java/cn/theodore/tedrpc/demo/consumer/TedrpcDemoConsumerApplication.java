@@ -34,7 +34,7 @@ public class TedrpcDemoConsumerApplication {
 //    @Resource
 //    private Demo demo;
 
-    @RequestMapping(value = "/",method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public User findById(int id) {
         return userService.findById(id);
     }
@@ -100,13 +100,18 @@ public class TedrpcDemoConsumerApplication {
 
             // demo.test1();;
 
-            System.out.println("Case 17. >>===[测试服务端抛出一个RuntimeException异常]===");
-            try {
-                User userEx = userService.ex(true);
-                log.info(userEx + "");
-            } catch (RuntimeException e) {
-                log.info(" ===> exception: " + e.getMessage());
-            }
+//            System.out.println("Case 17. >>===[测试服务端抛出一个RuntimeException异常]===");
+//            try {
+//                long start = System.currentTimeMillis();
+//                User userEx = userService.ex(true);
+//                log.info("userService.ex" + (System.currentTimeMillis() - start) + "ms");
+//            } catch (RuntimeException e) {
+//                log.info(" ===> exception: " + e.getMessage());
+//            }
+
+            long start = System.currentTimeMillis();
+            userService.find(1000);
+            log.info("userService.find take " + (System.currentTimeMillis() - start) + "ms");
         };
     }
 

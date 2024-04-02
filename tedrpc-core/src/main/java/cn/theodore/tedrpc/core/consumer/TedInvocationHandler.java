@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -26,12 +27,14 @@ public class TedInvocationHandler implements InvocationHandler {
 
     private List<InstanceMeta> providers;
 
-    private HttpInvoker httpInvoker = new OkHttpInvoker();
+    private HttpInvoker httpInvoker;
 
     public TedInvocationHandler(Class<?> clz, RpcContext context, List<InstanceMeta> providers) {
         this.service = clz;
         this.context = context;
         this.providers = providers;
+        int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
+        this.httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -41,35 +44,50 @@ public class TedInvocationHandler implements InvocationHandler {
             return null;
         }
 
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethodSign(MethodUtils.methodSign(method));
-        rpcRequest.setArgs(args);
+        // 重试次数
+        int retries = Integer.parseInt(context.getParameters().getOrDefault("app.retries", "1"));
+        while (retries-- > 0) {
 
-        // 请求前的过滤
-        for (Filter filter : this.context.getFilters()) {
-            Object preResult = filter.preFilter(rpcRequest);
-            if (null != preResult) {
-                log.info(filter.getClass().getName() + "====> preFilter" + preResult);
-                return preResult;
+            log.info(" ====> retries:" + retries);
+
+            try {
+                RpcRequest rpcRequest = new RpcRequest();
+                rpcRequest.setService(service.getCanonicalName());
+                rpcRequest.setMethodSign(MethodUtils.methodSign(method));
+                rpcRequest.setArgs(args);
+
+                // 请求前的过滤
+                for (Filter filter : this.context.getFilters()) {
+                    Object preResult = filter.preFilter(rpcRequest);
+                    if (null != preResult) {
+                        log.info(filter.getClass().getName() + "====> preFilter" + preResult);
+                        return preResult;
+                    }
+                }
+
+                List<InstanceMeta> instances = context.getRouter().route(providers);
+                InstanceMeta instance = context.getLoadBalancer().choose(instances);
+                log.info("loadBalancer.choose(nodes) ==> " + instance);
+                RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
+                Object result = caseReturnResult(method, rpcResponse);
+
+                // 请求后的过滤器
+                for (Filter filter : this.context.getFilters()) {
+                    Object filterResult = filter.postFilter(rpcRequest, rpcResponse, result);
+                    if (null != filterResult) {
+                        return filterResult;
+                    }
+                }
+                return result;
+            } catch (RuntimeException ex) {
+                // 如果非超时异常 直接退出循环
+                if (!(ex.getCause() instanceof SocketTimeoutException)) {
+                    throw ex;
+                }
             }
         }
 
-        List<InstanceMeta> instances = context.getRouter().route(providers);
-        InstanceMeta instance = context.getLoadBalancer().choose(instances);
-        log.info("loadBalancer.choose(nodes) ==> " + instance);
-        RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
-        Object result = caseReturnResult(method, rpcResponse);
-
-        // 请求后的过滤器
-        for (Filter filter : this.context.getFilters()) {
-            Object filterResult = filter.postFilter(rpcRequest, rpcResponse, result);
-            if (null != filterResult) {
-                return filterResult;
-            }
-        }
-
-        return result;
+        return null;
     }
 
     @Nullable

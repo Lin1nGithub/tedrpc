@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * 消费端实现类.
+ *
  * @author linkuan
  */
 @Getter
@@ -45,6 +46,12 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.env}")
     private String env;
 
+    @Value("${app.retries}")
+    private Integer retries;
+
+    @Value("${app.timeout}")
+    private int timeout;
+
     // 设置接口的代理类
     // 此时已初始化完成
     public void start() {
@@ -64,6 +71,8 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         context.setLoadBalancer(loadBalancer);
         // 设置过滤器
         context.setFilters(filters);
+        context.getParameters().put("app.retries", retries + "");
+        context.getParameters().put("app.timeout", retries + "");
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
