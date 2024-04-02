@@ -26,4 +26,7 @@ public class RpcRequest {
      * 参数 100
      */
     private Object[] args;
+
+    // 增加map传递上下文
+    // 需要考虑使用ThreadLocal绑定线程
 }

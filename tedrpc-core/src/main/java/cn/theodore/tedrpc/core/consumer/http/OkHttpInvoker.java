@@ -39,6 +39,7 @@ public class OkHttpInvoker implements HttpInvoker {
         log.info(" ===> reqJson = " + reqJson);
         Request request = new Request.Builder()
                 .url(url)
+                // 拼接header 传递上下文参数
                 .post(RequestBody.create(reqJson, JSONTYPE))
                 .build();
         try {

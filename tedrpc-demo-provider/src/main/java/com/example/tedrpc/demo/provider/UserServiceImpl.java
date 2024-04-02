@@ -73,12 +73,14 @@ public class UserServiceImpl implements UserService {
     public User find(int timeout) {
         log.info("find timetout:{}", timeout);
         String port = environment.getProperty("server.port");
-        try {
-            Thread.sleep(timeout);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (Arrays.stream(timeoutPorts.split(",")).anyMatch(port::equals)) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return new User(1001, "TED001");
+        return new User(1001, "TED1001-" + port);
     }
 
     public void setTimeoutPorts(String timeoutPorts) {

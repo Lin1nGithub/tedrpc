@@ -1,6 +1,7 @@
 package cn.theodore.tedrpc.demo.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
+import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.consumer.ConsumerBootStrap;
 import cn.theodore.tedrpc.core.consumer.ConsumerConfig;
 import cn.theodore.tedrpc.demo.api.User;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
@@ -39,6 +41,15 @@ public class TedrpcDemoConsumerApplication {
         return userService.findById(id);
     }
 
+    @RequestMapping("/ports")
+    public RpcResponse<String> ports(@RequestParam("ports") String ports) {
+        userService.setTimeoutPorts(ports);
+        RpcResponse<String> response = new RpcResponse<>();
+        response.setCode(200);
+        response.setData("OK:" + ports);
+        return response;
+    }
+
 
     public static void main(String[] args) {
         SpringApplication.run(TedrpcDemoConsumerApplication.class, args);
@@ -50,6 +61,10 @@ public class TedrpcDemoConsumerApplication {
 
     @Bean
     public ApplicationRunner runner() {
+
+        // 超时设置的【漏斗原则】
+        // A 2000 => B 1500 => 1200 => 1000
+
         return x -> {
 
 //            // 报错原因: 微服务返回的10 自动转换成Integer类型
