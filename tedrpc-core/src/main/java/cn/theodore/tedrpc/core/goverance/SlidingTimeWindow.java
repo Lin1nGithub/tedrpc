@@ -1,6 +1,7 @@
 package cn.theodore.tedrpc.core.goverance;
 
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SlidingTimeWindow implement based on RingBuffer and TS(timestamp).
@@ -8,6 +9,7 @@ import lombok.ToString;
  *
  */
 @ToString
+@Slf4j
 public class SlidingTimeWindow {
 
     public static final int DEFAULT_SIZE = 30;

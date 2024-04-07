@@ -129,6 +129,7 @@ public class TedInvocationHandler implements InvocationHandler {
                         windows.put(url, window);
                     }
 
+                    // 需要加并发控制
                     window.record(System.currentTimeMillis());
                     log.debug("instance {} in winodw with {}", url, window.getSum());
                     // 发生了10次,就做故障隔离

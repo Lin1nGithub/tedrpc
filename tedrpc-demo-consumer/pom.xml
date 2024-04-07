@@ -26,7 +26,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>cn.theodore</groupId>
             <artifactId>tedrpc-demo-api</artifactId>
@@ -55,6 +54,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--用于测试类型中的引用-->
+        <dependency>
+            <groupId>cn.theodore</groupId>
+            <artifactId>tedrpc-demo-provider</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <!--代表单元测试中会 正常打包不会带-->
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

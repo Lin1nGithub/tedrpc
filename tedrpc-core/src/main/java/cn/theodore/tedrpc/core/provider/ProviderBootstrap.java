@@ -53,6 +53,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${app.env}")
     private String env;
 
+    @Value("#{${app.metas}}")
+    private Map<String, String> metas;
+
 
     // bean的属性初始化装配前
     // init-method
@@ -79,6 +82,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = InstanceMeta.http(ip, port);
+        this.instance.getParameters().putAll(this.metas);
         rc.start();
         skeleton.keySet().forEach(this::registerService); // zk就有了 spring还未完成
     }
