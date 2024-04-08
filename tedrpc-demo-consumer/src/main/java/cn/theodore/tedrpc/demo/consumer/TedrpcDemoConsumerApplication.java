@@ -1,13 +1,16 @@
 package cn.theodore.tedrpc.demo.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
+import cn.theodore.tedrpc.core.api.Router;
 import cn.theodore.tedrpc.core.api.RpcResponse;
+import cn.theodore.tedrpc.core.cluster.GrayRouter;
 import cn.theodore.tedrpc.core.consumer.ConsumerBootStrap;
 import cn.theodore.tedrpc.core.consumer.ConsumerConfig;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -48,6 +51,15 @@ public class TedrpcDemoConsumerApplication {
         response.setCode(200);
         response.setData("OK:" + ports);
         return response;
+    }
+
+    @Autowired
+    private Router grayRouter;
+
+    @RequestMapping("/gray/")
+    public String gray(@RequestParam("ratio") int ratio) {
+        ((GrayRouter)grayRouter).setGrayRatio(ratio);
+        return "OK-new gray ratio is " + ratio;
     }
 
 

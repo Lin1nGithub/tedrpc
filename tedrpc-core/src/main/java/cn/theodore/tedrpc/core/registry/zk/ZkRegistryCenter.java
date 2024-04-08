@@ -113,7 +113,6 @@ public class ZkRegistryCenter implements RegistryCenter {
         try {
             List<String> nodes = client.getChildren().forPath(servicePath);
             log.info(" ===> fetchAll from zk: " + servicePath);
-            nodes.forEach(System.out::println);
             return mapInstances(nodes, servicePath);
         } catch (Exception e) {
             throw new RpcException(e);
@@ -129,7 +128,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     private List<InstanceMeta> mapInstances(List<String> nodes, String servicePath) {
         return nodes.stream().map(x -> {
             String[] s = x.split("_");
-
+            System.out.println(x);
             String nodePath = servicePath +  "/" + x;
             byte[] bytes;
             try {

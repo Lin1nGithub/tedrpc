@@ -3,6 +3,7 @@ package cn.theodore.tedrpc.core.consumer;
 import cn.theodore.tedrpc.core.api.LoadBalancer;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.api.Router;
+import cn.theodore.tedrpc.core.cluster.GrayRouter;
 import cn.theodore.tedrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.registry.zk.ZkRegistryCenter;
@@ -23,6 +24,9 @@ public class ConsumerConfig {
 
     @Value("${tedrpc.providers}")
     private String servers;
+
+    @Value("${app.grayRatio}")
+    private int grayRatio;
 
     @Bean
     public ConsumerBootStrap consumerBootStrap() {
@@ -46,7 +50,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router<InstanceMeta> router() {
-        return Router.Default;
+        return new GrayRouter(grayRatio);
     }
 
     /**

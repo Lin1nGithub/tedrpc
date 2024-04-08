@@ -72,7 +72,8 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
         // 设置过滤器
         context.setFilters(filters);
         context.getParameters().put("app.retries", retries + "");
-        context.getParameters().put("app.timeout", retries + "");
+        context.getParameters().put("app.timeout", timeout + "");
+       // context.getParameters().put("app.grayRatio", grayRatio + "");
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
