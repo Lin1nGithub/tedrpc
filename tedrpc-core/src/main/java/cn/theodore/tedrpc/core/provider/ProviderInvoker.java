@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class ProviderInvoker {
             // 通过方法名拿到方法
             Method method = meta.getMethod();
             // 入参参数转换
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             // 执行方法
             Object result = method.invoke(meta.getServiceImpl(), args);
             rpcResponse.setCode(200);
@@ -58,13 +59,13 @@ public class ProviderInvoker {
         return optional.orElse(null);
     }
 
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) {
             return args;
         }
         Object[] actuals = new Object[args.length];
         for (int i = 0; i < actuals.length; i++) {
-            actuals[i] = TypeUtils.castType(args[i], parameterTypes[i]);
+            actuals[i] = TypeUtils.castGeneric(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return actuals;
     }
