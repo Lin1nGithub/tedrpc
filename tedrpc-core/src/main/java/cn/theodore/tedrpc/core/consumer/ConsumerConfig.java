@@ -1,10 +1,12 @@
 package cn.theodore.tedrpc.core.consumer;
 
+import cn.theodore.tedrpc.core.api.Filter;
 import cn.theodore.tedrpc.core.api.LoadBalancer;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.api.Router;
 import cn.theodore.tedrpc.core.cluster.GrayRouter;
 import cn.theodore.tedrpc.core.cluster.RoundRibonLoadBalancer;
+import cn.theodore.tedrpc.core.filter.ParamFilter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -63,10 +65,10 @@ public class ConsumerConfig {
         return new ZkRegistryCenter();
     }
 
-//    @Bean
-//    public Filter filter() {
-//        return new CacheFilter();
-//    }
+    @Bean
+    public Filter filter() {
+        return new ParamFilter();
+    }
 
 //    @Bean
 //    public Filter filter2() {

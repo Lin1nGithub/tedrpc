@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.demo.consumer;
 
 import cn.theodore.tedrpc.core.annotation.TedConsumer;
 import cn.theodore.tedrpc.core.api.Router;
+import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.cluster.GrayRouter;
 import cn.theodore.tedrpc.core.consumer.ConsumerBootStrap;
@@ -139,6 +140,19 @@ public class TedrpcDemoConsumerApplication {
             long start = System.currentTimeMillis();
             userService.find(1000);
             log.info("userService.find take " + (System.currentTimeMillis() - start) + "ms");
+
+            log.info("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+            String Key_Version = "rpc.version";
+            String Key_Message = "rpc.message";
+            RpcContext.setContextParameter(Key_Version, "V8");
+            RpcContext.setContextParameter(Key_Message, "this is a v8 message");
+            String version = userService.echoParameter(Key_Version);
+            RpcContext.setContextParameter(Key_Version, "V9");
+            RpcContext.setContextParameter(Key_Message, "this is a v9 message");
+            String message = userService.echoParameter(Key_Message);
+            log.info(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+            log.info(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+            RpcContext.ContextParameters.get().clear(); // 当前线程被复用, 第二次请求过来,带上了上一次请求的参数
         };
     }
 

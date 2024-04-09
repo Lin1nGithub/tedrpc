@@ -1,5 +1,6 @@
 package cn.theodore.tedrpc.core.provider;
 
+import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.api.RpcException;
@@ -26,11 +27,15 @@ public class ProviderInvoker {
         this.skeleton = providerBootstrap.getSkeleton();
     }
 
-    public RpcResponse invoke(RpcRequest request) {
+    public RpcResponse<Object> invoke(RpcRequest request) {
         log.info("request ==>" + request);
         String methodSign = request.getMethodSign();
+        // 此处讲上游传递的参数进行设置到当前线程中
+        if (!request.getParams().isEmpty()) {
+            request.getParams().forEach(RpcContext::setContextParameter);
+        }
 
-        RpcResponse rpcResponse = new RpcResponse();
+        RpcResponse<Object> rpcResponse = new RpcResponse<>();
         List<ProviderMeta> providerMetas = skeleton.get(request.getService());
         ProviderMeta meta = findProviderMeta(providerMetas, methodSign);
 
@@ -50,6 +55,9 @@ public class ProviderInvoker {
         } catch (IllegalAccessException ex) {
             rpcResponse.setMessage("调用失败");
             rpcResponse.setEx(new RpcException(ex.getMessage()));
+        }finally {
+            // 防止内存泄露和上下文污染
+            RpcContext.ContextParameters.get().clear();
         }
         return rpcResponse;
     }

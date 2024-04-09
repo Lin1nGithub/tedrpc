@@ -20,5 +20,5 @@ public class RpcResponse<T> {
 
     private String message;
 
-    private Exception ex;
+    private RpcException ex;
 }

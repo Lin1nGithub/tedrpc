@@ -1,6 +1,7 @@
 package com.example.tedrpc.demo.provider;
 
 import cn.theodore.tedrpc.core.annotation.TedProvider;
+import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.demo.api.User;
 import cn.theodore.tedrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
@@ -85,6 +86,13 @@ public class UserServiceImpl implements UserService {
 
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        log.info(" ====>> RpcContext.ContextParameters: ");
+        RpcContext.ContextParameters.get().forEach((k, v)-> System.out.println(k+" -> " +v));
+        return RpcContext.getContextParameter(key);
     }
 
 
