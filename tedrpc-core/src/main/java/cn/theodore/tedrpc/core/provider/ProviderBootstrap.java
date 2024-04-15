@@ -2,6 +2,8 @@ package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.annotation.TedProvider;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
+import cn.theodore.tedrpc.core.config.AppConfigProperties;
+import cn.theodore.tedrpc.core.config.ProviderConfigProperties;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
@@ -34,27 +36,19 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @Resource
     private ApplicationContext applicationContext;
-
     private LinkedMultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
-
-    @Value("${server.port}")
-    private Integer port;
-
+    private String port;
     private InstanceMeta instance;
+    private RegistryCenter rc;
+    private AppConfigProperties appProperties;
+    private ProviderConfigProperties providerProperties;
 
-    private RegistryCenter rc = null;
-
-    @Value("${app.id}")
-    private String app;
-
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("#{${app.metas}}")
-    private Map<String, String> metas;
+    public ProviderBootstrap(String port, AppConfigProperties appConfigProperties,
+                             ProviderConfigProperties providerProperties) {
+        this.port = port;
+        this.appProperties = appConfigProperties;
+        this.providerProperties = providerProperties;
+    }
 
 
     // bean的属性初始化装配前
@@ -81,18 +75,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @SneakyThrows
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
-        this.instance = InstanceMeta.http(ip, port);
-        this.instance.getParameters().putAll(this.metas);
+        this.instance = InstanceMeta.http(ip, Integer.valueOf(port));
+        this.instance.getParameters().putAll(providerProperties.getMetas());
         rc.start();
         skeleton.keySet().forEach(this::registerService); // zk就有了 spring还未完成
     }
 
     private void registerService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(service)
-                .app(app)
-                .namespace(namespace)
-                .env(env)
+                .name(service).app(appProperties.getId())
+                .namespace(appProperties.getNamespace()).env(appProperties.getEnv())
                 .build();
         rc.register(serviceMeta, instance);
     }
@@ -110,10 +102,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private void unRegisterService(String service) {
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(service)
-                .app(app)
-                .namespace(namespace)
-                .env(env)
+                .name(service).app(appProperties.getId())
+                .namespace(appProperties.getNamespace()).env(appProperties.getEnv())
                 .build();
         rc.unregister(serviceMeta, instance);
     }

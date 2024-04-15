@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * rpc上下文
+ *
  * @author linkuan
  */
 @Data
@@ -34,7 +35,11 @@ public class RpcContext {
      */
     private Map<String, String> parameters = new HashMap<>();
 
-    public static ThreadLocal<Map<String,String>> ContextParameters = new ThreadLocal<>() {
+    public String param(String key) {
+        return parameters.get(key);
+    }
+
+    public static ThreadLocal<Map<String, String>> ContextParameters = new ThreadLocal<>() {
         @Override
         protected Map<String, String> initialValue() {
             return new HashMap<>();

@@ -83,6 +83,27 @@ public class SlidingTimeWindow {
         return sum;
     }
 
+    /**
+     * 获取滑动时间窗口内的值
+     * @return
+     */
+    public int calcSum() {
+        long ts = System.currentTimeMillis() / 1000;
+        if(ts > _curr_ts && ts < _curr_ts + size) {
+            int offset = (int)(ts - _curr_ts);
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size + ", offset:" + offset);
+            this.ringBuffer.reset(_curr_mark + 1, offset);
+            _curr_ts = ts;
+            _curr_mark = (_curr_mark + offset) % size;
+        } else if(ts >= _curr_ts + size) {
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size);
+            this.ringBuffer.reset();
+            initRing(ts);
+        }
+        log.debug("calc sum for window:" + this);
+        return ringBuffer.sum();
+    }
+
     public RingBuffer getRingBuffer() {
         return ringBuffer;
     }

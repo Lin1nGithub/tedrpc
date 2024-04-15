@@ -2,14 +2,19 @@ server:
   port: 8081
 
 tedrpc:
-  zkServer: localhost:2181
-  zkRoot: tedrpc
-
-app:
-  id: app1
-  namespace: public
-  env: dev
-  metas: "{dc:'bj',gray:'flase',unity:'B001'}"
+  zk:
+    server: localhost:2181
+    root: tedprc
+  app:
+    id: app1
+    namespace: public
+    env: dev
+  providers:
+    metas:
+      dc: bj
+      gray: false
+      unity: B001
+      tc: 300
 
 logging:
   level:

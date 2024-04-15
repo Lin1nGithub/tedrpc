@@ -4,6 +4,7 @@ import cn.theodore.tedrpc.core.api.RpcContext;
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
 import cn.theodore.tedrpc.core.api.RpcException;
+import cn.theodore.tedrpc.core.goverance.SlidingTimeWindow;
 import cn.theodore.tedrpc.core.meta.ProviderMeta;
 import cn.theodore.tedrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -26,6 +29,8 @@ public class ProviderInvoker {
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();
     }
+
+    private final Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
     public RpcResponse<Object> invoke(RpcRequest request) {
         log.info("request ==>" + request);

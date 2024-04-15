@@ -2,8 +2,7 @@ package com.example.tedrpc.demo.provider;
 
 import cn.theodore.tedrpc.core.api.RpcRequest;
 import cn.theodore.tedrpc.core.api.RpcResponse;
-import cn.theodore.tedrpc.core.provider.ProviderBootstrap;
-import cn.theodore.tedrpc.core.provider.ProviderConfig;
+import cn.theodore.tedrpc.core.config.ProviderConfig;
 import cn.theodore.tedrpc.core.provider.ProviderInvoker;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

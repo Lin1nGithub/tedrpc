@@ -37,43 +37,12 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
-    @Value("${app.id}")
-    private String app;
-
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("${app.retries}")
-    private Integer retries;
-
-    @Value("${app.timeout}")
-    private int timeout;
-
     // 设置接口的代理类
     // 此时已初始化完成
     public void start() {
 
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-
-        // 获取注册中心
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-
-        // 初始化rpc上下文
-        RpcContext context = new RpcContext();
-        // 设置路由
-        context.setRouter(router);
-        // 设置均衡负载
-        context.setLoadBalancer(loadBalancer);
-        // 设置过滤器
-        context.setFilters(filters);
-        context.getParameters().put("app.retries", retries + "");
-        context.getParameters().put("app.timeout", timeout + "");
-       // context.getParameters().put("app.grayRatio", grayRatio + "");
+        RpcContext context = applicationContext.getBean(RpcContext.class);
 
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
@@ -86,24 +55,24 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
             }
 
             fields.forEach(field -> {
+                Class<?> service = field.getType();
+                // 全限定名称
+                String serviceName = service.getCanonicalName();
+
                 try {
                     log.info("====>" + field.getName());
                     // 对每个field生成代理
-                    Class<?> service = field.getType();
-                    // 全限定名称
-                    String serviceName = service.getCanonicalName();
-
                     Object consumer = stub.get(serviceName);
                     if (consumer == null) {
                         // 设置代理类
                         consumer = createFromRegistry(service, context, rc);
                         stub.put(serviceName, consumer);
-//                        consumer = createConsumer(service, context, List.of(providers));
                     }
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    log.warn(" ==> Field[{}.{}] create consumer failed.", serviceName, field.getName());
+                    log.error("Ignore and print it as: ", ex);
                 }
             });
         }
@@ -119,10 +88,8 @@ public class ConsumerBootStrap implements ApplicationContextAware, EnvironmentAw
      */
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(service.getCanonicalName())
-                .app(app)
-                .namespace(namespace)
-                .env(env)
+                .name(service.getCanonicalName()).app(context.param("app.id"))
+                .namespace(context.param("app.namespace")).env(context.param("app.env"))
                 .build();
         List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
         log.info(" ===> map to providers: ");

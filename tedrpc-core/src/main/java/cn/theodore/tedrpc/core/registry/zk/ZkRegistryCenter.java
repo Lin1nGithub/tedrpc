@@ -34,11 +34,11 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private TreeCache cache = null;
 
-    @Value("${tedrpc.zkServer}")
-    private String servers;
+    @Value("${ted.zk.server:localhost:2181}")
+    String servers;
 
-    @Value("${tedrpc.zkRoot}")
-    private String root;
+    @Value("${ted.zk.root:tedrpc}")
+    String root;
 
     @Override
     public void start() {

@@ -55,10 +55,16 @@ public class TedInvocationHandler implements InvocationHandler {
         this.service = clz;
         this.context = context;
         this.providers = providers;
-        int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
+        int timeout = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
         this.executor = Executors.newScheduledThreadPool(1);
-        this.executor.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+        int halfOpenInitialDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.halfOpenInitialDelay", "10000"));
+        int halfOpenDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.halfOpenDelay", "60000"));
+        this.executor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay,
+                halfOpenDelay, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -78,7 +84,9 @@ public class TedInvocationHandler implements InvocationHandler {
         }
 
         // 重试次数
-        int retries = Integer.parseInt(context.getParameters().getOrDefault("app.retries", "1"));
+        int retries = Integer.parseInt(context.getParameters().getOrDefault("consumer.retries", "1"));
+        int faultLimit = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.faultLimit", "10"));
         while (retries-- > 0) {
 
             log.info(" ====> retries:{}" , retries);
@@ -133,7 +141,7 @@ public class TedInvocationHandler implements InvocationHandler {
                     window.record(System.currentTimeMillis());
                     log.debug("instance {} in winodw with {}", url, window.getSum());
                     // 发生了10次,就做故障隔离
-                    if (window.getSum() >= 10) {
+                    if (window.getSum() >= faultLimit) {
                         isolate(instance);
                     }
                     throw e;
