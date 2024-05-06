@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.api;
 
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
+import cn.theodore.tedrpc.core.registry.ChangeListener;
 
 import java.util.List;
 

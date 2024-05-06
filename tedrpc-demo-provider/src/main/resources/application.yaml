@@ -2,13 +2,18 @@ server:
   port: 8081
 
 tedrpc:
-  zkServer: localhost:2181
-  zkRoot: tedrpc
+  zk:
+      server: localhost:2181
+      root: tedrpc
 
 app:
   id: app1
   namespace: public
   env: dev
+
+# 注册中心
+kkregistry:
+  servers: http://localhost:8484
 
 logging:
   level:

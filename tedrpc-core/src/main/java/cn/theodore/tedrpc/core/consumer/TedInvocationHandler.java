@@ -29,7 +29,7 @@ public class TedInvocationHandler implements InvocationHandler {
 
     private List<InstanceMeta> providers;
 
-    private HttpInvoker httpInvoker = new OkHttpInvoker();
+    private HttpInvoker httpInvoker = new OkHttpInvoker(500);
 
     public TedInvocationHandler(Class<?> clz, RpcContext context, List<InstanceMeta> providers) {
         this.service = clz;

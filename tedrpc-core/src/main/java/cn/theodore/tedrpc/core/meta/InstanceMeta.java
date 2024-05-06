@@ -2,6 +2,7 @@ package cn.theodore.tedrpc.core.meta;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = {"scheme", "host", "port", "context"})
 public class InstanceMeta {
 
 

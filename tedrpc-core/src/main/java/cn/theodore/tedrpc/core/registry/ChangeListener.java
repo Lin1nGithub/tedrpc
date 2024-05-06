@@ -1,4 +1,4 @@
-package cn.theodore.tedrpc.core.api;
+package cn.theodore.tedrpc.core.registry;
 
 import cn.theodore.tedrpc.core.registry.Event;
 

@@ -1,9 +1,10 @@
-package cn.theodore.tedrpc.core.registry;
+package cn.theodore.tedrpc.core.registry.zk;
 
-import cn.theodore.tedrpc.core.api.ChangeListener;
 import cn.theodore.tedrpc.core.api.RegistryCenter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
 import cn.theodore.tedrpc.core.meta.ServiceMeta;
+import cn.theodore.tedrpc.core.registry.ChangeListener;
+import cn.theodore.tedrpc.core.registry.Event;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -30,10 +31,10 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private TreeCache cache = null;
 
-    @Value("${tedrpc.zkServer}")
+    @Value("${tedrpc.zk.server}")
     private String servers;
 
-    @Value("${tedrpc.zkRoot}")
+    @Value("${tedrpc.zk.root}")
     private String root;
 
     @Override
