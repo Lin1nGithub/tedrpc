@@ -10,6 +10,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,33 +23,70 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * implementation for ted registry center.
+ *
  * @author linkuan
  */
 @Slf4j
 
 public class TedRegistryCenter implements RegistryCenter {
 
-    @Value("${kkregistry.servers}")
+    @Value("${tedregistry.servers}")
     private String servers;
+    private Map<String, Long> VERSIONS = new HashMap<>();
+
+    private ScheduledExecutorService consumerExecutor = null;
+    private ScheduledExecutorService producerExecutor = null;
+
+    /**
+     * 服务保活的map
+     * 每次注册的时候防入
+     */
+    MultiValueMap<InstanceMeta, ServiceMeta> RENEWS = new LinkedMultiValueMap<>();
 
     @Override
     public void start() {
         log.info(" =====>>> [TedRegistry] : start with servers :{}", servers);
-        executor = Executors.newScheduledThreadPool(1);
+        consumerExecutor = Executors.newScheduledThreadPool(1);
+        producerExecutor = Executors.newScheduledThreadPool(1);
+        // 探活
+        producerExecutor.scheduleWithFixedDelay(() -> {
+            for (InstanceMeta instance : RENEWS.keySet()) {
+                StringBuffer sb = new StringBuffer();
+                for (ServiceMeta service : RENEWS.get(instance)) {
+                    sb.append(service.toPath()).append(",");
+                }
+                String services = sb.toString();
+                if (services.endsWith(",")) services = services.substring(0, services.length() - 1);
+                log.info(" =====>>> [TedRegistry] : renew instance {} for {}", instance, services);
+                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/renews?services=" + services, Long.class);
+                log.info(" =====>>> [TedRegistry] : renew instance {} at {}", instance, timestamp);
+            }
+
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     @Override
     public void stop() {
         log.info(" =====>>> [TedRegistry] : start graceful shutdown");
-        executor.shutdown();
+        gracefulShutdown(consumerExecutor);
+        gracefulShutdown(producerExecutor);
+    }
+
+    /**
+     * 优雅启停方法
+     *
+     * @param executorService
+     */
+    private void gracefulShutdown(ScheduledExecutorService executorService) {
+        executorService.shutdown();
         try {
             // 线程池优雅启停
-            executor.awaitTermination(1, TimeUnit.SECONDS);
+            executorService.awaitTermination(1, TimeUnit.SECONDS);
             // isShutdown isTerminated
             // 如果没有停下来
-            if (!executor.isTerminated()) {
+            if (!executorService.isTerminated()) {
                 // 执行强制停止
-                executor.shutdownNow();
+                executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -58,6 +98,7 @@ public class TedRegistryCenter implements RegistryCenter {
         log.info(" =====>>> [TedRegistry] : register instance :{} for {}", instance, service);
         HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/reg?service=" + service.toPath(), InstanceMeta.class);
         log.info(" =====>>> [TedRegistry] : registered {}", instance);
+        RENEWS.add(instance, service);
     }
 
 
@@ -66,6 +107,7 @@ public class TedRegistryCenter implements RegistryCenter {
         log.info(" =====>>> [TedRegistry] : unregister instance :{} for {}", instance, service);
         HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/unreg?service=" + service.toPath(), InstanceMeta.class);
         log.info(" =====>>> [TedRegistry] : unregistered {}", instance);
+        RENEWS.remove(instance, service);
     }
 
     @Override
@@ -80,13 +122,9 @@ public class TedRegistryCenter implements RegistryCenter {
     /**
      * 本地服务的版本缓存
      */
-    private Map<String, Long> VERSIONS = new HashMap<>();
-
-    private ScheduledExecutorService executor = null;
-
     @Override
     public void subscribe(ServiceMeta service, ChangeListener listener) {
-        executor.scheduleWithFixedDelay(() -> {
+        consumerExecutor.scheduleWithFixedDelay(() -> {
             // 获取当前的版本
             Long version = VERSIONS.getOrDefault(service.toPath(), -1L);
             // 远程获取服务的版本

@@ -7,6 +7,7 @@ import cn.theodore.tedrpc.core.api.Router;
 import cn.theodore.tedrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.theodore.tedrpc.core.filter.MockFilter;
 import cn.theodore.tedrpc.core.meta.InstanceMeta;
+import cn.theodore.tedrpc.core.registry.ted.TedRegistryCenter;
 import cn.theodore.tedrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class ConsumerConfig {
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_rc() {
-        return new ZkRegistryCenter();
+        return new TedRegistryCenter();
     }
 
 //    @Bean

@@ -12,7 +12,7 @@ app:
   env: dev
 
 # 注册中心
-kkregistry:
+tedregistry:
   servers: http://localhost:8484
 
 logging:

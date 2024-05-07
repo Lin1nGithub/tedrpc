@@ -5,6 +5,10 @@ tedrpc:
     zkServer: localhost:2181
     zkRoot: tedrpc
 
+# 注册中心
+tedregistry:
+  servers: http://localhost:8484
+
 app:
   id: app1
   namespace: public

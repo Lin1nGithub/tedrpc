@@ -1,11 +1,8 @@
 package cn.theodore.tedrpc.core.meta;
 
-import com.alibaba.fastjson.JSON;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.HashMap;
-import java.util.Map;
+import lombok.EqualsAndHashCode;
 
 /**
  * 描述服务元数据.
@@ -13,6 +10,7 @@ import java.util.Map;
  */
 @Data
 @Builder
+@EqualsAndHashCode(of = {"app", "namespace", "env", "name"})
 public class ServiceMeta {
 
     /**

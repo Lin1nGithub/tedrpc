@@ -1,6 +1,7 @@
 package cn.theodore.tedrpc.core.provider;
 
 import cn.theodore.tedrpc.core.api.RegistryCenter;
+import cn.theodore.tedrpc.core.registry.ted.TedRegistryCenter;
 import cn.theodore.tedrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class ProviderConfig {
 //    @Bean(initMethod = "start", destroyMethod = "stop")
     @Bean
     public RegistryCenter provider_rc() {
-        return new ZkRegistryCenter();
+        return new TedRegistryCenter();
     }
 
 }
