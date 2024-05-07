@@ -1,5 +1,6 @@
 package cn.theodore.tedrpc.core.meta;
 
+import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -63,5 +64,14 @@ public class InstanceMeta {
 
     public String toUrl() {
         return String.format("%s://%s:%d/%s", scheme, host, port, context);
+    }
+
+    public InstanceMeta addParams(Map<String, String> params) {
+        this.getParameters().putAll(params);
+        return this;
+    }
+
+    public String toMetas() {
+        return JSON.toJSONString(this.getParameters());
     }
 }
