@@ -12,12 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +35,14 @@ public class TedRegistryCenter implements RegistryCenter {
     private ScheduledExecutorService consumerExecutor = null;
     private ScheduledExecutorService producerExecutor = null;
 
+    private final String REG_PATH = "/reg";
+    private final String UNREG_PATH = "/unreg";
+    private final String FINDALL_PATH = "/findAll";
+    private final String VERSION_PATH = "/version";
+    private final String RENEWS_PATH = "/renews";
+
+    TedHealthChecker healthChecker = new TedHealthChecker();
+
     /**
      * 服务保活的map
      * 每次注册的时候防入
@@ -46,30 +52,24 @@ public class TedRegistryCenter implements RegistryCenter {
     @Override
     public void start() {
         log.info(" =====>>> [TedRegistry] : start with servers :{}", servers);
-        consumerExecutor = Executors.newScheduledThreadPool(1);
-        producerExecutor = Executors.newScheduledThreadPool(1);
+        healthChecker.start();
         // 探活
-        producerExecutor.scheduleWithFixedDelay(() -> {
+        providerCheck();
+    }
+
+    private void providerCheck() {
+        healthChecker.providerCheck(() -> {
             for (InstanceMeta instance : RENEWS.keySet()) {
-                StringBuffer sb = new StringBuffer();
-                for (ServiceMeta service : RENEWS.get(instance)) {
-                    sb.append(service.toPath()).append(",");
-                }
-                String services = sb.toString();
-                if (services.endsWith(",")) services = services.substring(0, services.length() - 1);
-                log.info(" =====>>> [TedRegistry] : renew instance {} for {}", instance, services);
-                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/renews?services=" + services, Long.class);
+                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), renewsPath(RENEWS.get(instance)), Long.class);
                 log.info(" =====>>> [TedRegistry] : renew instance {} at {}", instance, timestamp);
             }
-
-        }, 5, 5, TimeUnit.SECONDS);
+        });
     }
 
     @Override
     public void stop() {
         log.info(" =====>>> [TedRegistry] : start graceful shutdown");
-        gracefulShutdown(consumerExecutor);
-        gracefulShutdown(producerExecutor);
+        healthChecker.stop();
     }
 
     /**
@@ -96,16 +96,15 @@ public class TedRegistryCenter implements RegistryCenter {
     @Override
     public void register(ServiceMeta service, InstanceMeta instance) {
         log.info(" =====>>> [TedRegistry] : register instance :{} for {}", instance, service);
-        HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/reg?service=" + service.toPath(), InstanceMeta.class);
+        HttpInvoker.httpPost(JSON.toJSONString(instance), regPath(service), InstanceMeta.class);
         log.info(" =====>>> [TedRegistry] : registered {}", instance);
         RENEWS.add(instance, service);
     }
 
-
     @Override
     public void unregister(ServiceMeta service, InstanceMeta instance) {
         log.info(" =====>>> [TedRegistry] : unregister instance :{} for {}", instance, service);
-        HttpInvoker.httpPost(JSON.toJSONString(instance), servers + "/unreg?service=" + service.toPath(), InstanceMeta.class);
+        HttpInvoker.httpPost(JSON.toJSONString(instance), unregPath(service), InstanceMeta.class);
         log.info(" =====>>> [TedRegistry] : unregistered {}", instance);
         RENEWS.remove(instance, service);
     }
@@ -113,7 +112,7 @@ public class TedRegistryCenter implements RegistryCenter {
     @Override
     public List<InstanceMeta> fetchAll(ServiceMeta service) {
         log.info(" =====>>> [TedRegistry] : find all instances for {} ", service);
-        List<InstanceMeta> instances = HttpInvoker.httpGet(servers + "/findAll?service=" + service.toPath(), new TypeReference<List<InstanceMeta>>() {
+        List<InstanceMeta> instances = HttpInvoker.httpGet(findAllPath(service), new TypeReference<List<InstanceMeta>>() {
         });
         log.info(" =====>>> [TedRegistry] : findAll = {}", instances);
         return instances;
@@ -124,11 +123,11 @@ public class TedRegistryCenter implements RegistryCenter {
      */
     @Override
     public void subscribe(ServiceMeta service, ChangeListener listener) {
-        consumerExecutor.scheduleWithFixedDelay(() -> {
+        healthChecker.consumerCheck(() -> {
             // 获取当前的版本
             Long version = VERSIONS.getOrDefault(service.toPath(), -1L);
             // 远程获取服务的版本
-            Long newVersion = HttpInvoker.httpGet(servers + "/version?service=" + service.toPath(), Long.class);
+            Long newVersion = HttpInvoker.httpGet(versionPath(service), Long.class);
             log.info(" ====>>>> [TedRegistry] : version = {},newVersion = {}", version, newVersion);
             if (newVersion > version) {
                 // 重新获取新的服务版本
@@ -137,6 +136,42 @@ public class TedRegistryCenter implements RegistryCenter {
                 // 刷新版本号
                 VERSIONS.put(service.toPath(), newVersion);
             }
-        }, 1000, 5000, TimeUnit.MILLISECONDS);
+        });
     }
+
+    private String regPath(ServiceMeta service) {
+        return path(REG_PATH, service);
+    }
+
+    private String unregPath(ServiceMeta service) {
+        return path(UNREG_PATH, service);
+    }
+
+    private String findAllPath(ServiceMeta service) {
+        return path(FINDALL_PATH, service);
+    }
+
+    private String versionPath(ServiceMeta service) {
+        return path(VERSION_PATH, service);
+    }
+
+    private String path(String context, ServiceMeta service) {
+        return servers + context + "?service=" + service.toPath();
+    }
+
+    private String renewsPath(List<ServiceMeta> serviceList) {
+        return path(RENEWS_PATH, serviceList);
+    }
+
+    private String path(String context, List<ServiceMeta> serviceList) {
+        StringBuilder sb = new StringBuilder();
+        for (ServiceMeta service : serviceList) {
+            sb.append(service.toPath()).append(",");
+        }
+        String services = sb.toString();
+        if (services.endsWith(",")) services = services.substring(0, services.length() - 1);
+        log.info(" =====>>> [TedRegistry] : renew instance for {}", services);
+        return servers + context + "?services=" + services;
+    }
+
 }
